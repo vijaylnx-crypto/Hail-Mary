@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Orbit — Space Health Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0b1e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Tailwind & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      background-color: #0b0b1e;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    .orbit-gradient {
+      background: radial-gradient(circle at center, #1e1b4b 0%, #0b0b1e 100%);
+    }
+    /* Hide scrollbar for Chrome/Safari */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+</head>
+<body class="orbit-gradient min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+  <!-- TOP HEADER -->
+  <header class="pt-12 px-6 pb-3 flex justify-between items-center border-b border-indigo-950/40">
+    <div class="flex items-center gap-2">
+      <i data-lucide="orbit" class="text-indigo-400 animate-spin-slow" style="animation: spin 20s linear infinite;"></i>
+      <h1 class="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">ORBIT</h1>
+    </div>
+    <span id="header-date" class="text-xs text-indigo-300/70 font-mono tracking-widest uppercase"></span>
+  </header>
+
+  <!-- MAIN CONTAINER (Scrollable) -->
+  <main class="flex-1 overflow-y-auto px-6 py-4 no-scrollbar pb-24">
+    
+    <!-- SECTION: TODAY 🪐 -->
+    <section id="view-today" class="space-y-6">
+      <!-- Orbit Dial -->
+      <div class="relative flex flex-col items-center justify-center my-4">
+        <!-- Outer Track Ring -->
+        <div class="w-64 h-64 rounded-full border-4 border-indigo-950/50 flex items-center justify-center relative shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+          <!-- Animated Orbiting Particle representing progress -->
+          <div id="orbit-dot" class="absolute w-4 h-4 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-[0_0_15px_rgba(236,72,153,0.8)]" style="transform: rotate(0deg) translate(128px) rotate(0deg); transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+          
+          <div class="text-center z-10">
+            <span class="text-xs tracking-widest text-indigo-400 uppercase font-mono">Net Calories</span>
+            <div id="net-cal-val" class="text-4xl font-extrabold my-1 tracking-tight text-white">0</div>
+            <span id="net-cal-label" class="text-[10px] text-slate-400 uppercase font-mono tracking-wider">0% of daily limit</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Cards -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-indigo-950/30 border border-indigo-900/40 p-3 rounded-2xl text-center">
+          <i data-lucide="utensils" class="w-5 h-5 mx-auto text-pink-400 mb-1"></i>
+          <span class="text-[10px] text-slate-400 uppercase font-mono block">Intake</span>
+          <span id="today-intake" class="font-bold text-sm text-pink-100">0 kcal</span>
+        </div>
+        <div class="bg-indigo-950/30 border border-indigo-900/40 p-3 rounded-2xl text-center">
+          <i data-lucide="flame" class="w-5 h-5 mx-auto text-orange-400 mb-1"></i>
+          <span class="text-[10px] text-slate-400 uppercase font-mono block">Burned</span>
+          <span id="today-burned" class="font-bold text-sm text-orange-100">0 kcal</span>
+        </div>
+        <div class="bg-indigo-950/30 border border-indigo-900/40 p-3 rounded-2xl text-center">
+          <i data-lucide="moon" class="w-5 h-5 mx-auto text-purple-400 mb-1"></i>
+          <span class="text-[10px] text-slate-400 uppercase font-mono block">Sleep</span>
+          <span id="today-sleep" class="font-bold text-sm text-purple-100">0 hrs</span>
+        </div>
+      </div>
+
+      <!-- Today's Activity Stream -->
+      <div>
+        <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-300/70 mb-3">Today's Log</h3>
+        <div id="today-log-list" class="space-y-2">
+          <!-- Injected Dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: LOG 🛰️ -->
+    <section id="view-log" class="hidden space-y-6">
+      <!-- Tabs -->
+      <div class="flex bg-indigo-950/40 p-1 rounded-xl border border-indigo-900/30">
+        <button onclick="switchLogTab('food')" id="tab-btn-food" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all">Food</button>
+        <button onclick="switchLogTab('activity')" id="tab-btn-activity" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all">Activity</button>
+      </div>
+
+      <!-- FOOD LOG FORM -->
+      <form id="food-form" class="space-y-4" onsubmit="logFood(event)">
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">What did you eat?</label>
+          <input type="text" id="food-name" required placeholder="e.g., Avocado Toast" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-500 text-white placeholder-slate-500">
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Calories (kcal)</label>
+          <input type="number" id="food-cals" required min="1" placeholder="e.g., 340" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-500 text-white placeholder-slate-500">
+        </div>
+
+        <!-- Quick chips -->
+        <div class="space-y-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Quick-add:</span>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="quickFillFood('Black Coffee', 5)" class="px-3 py-1.5 rounded-lg bg-indigo-950/30 border border-indigo-900/50 text-xs hover:border-pink-500 transition-all">☕ Coffee (5)</button>
+            <button type="button" onclick="quickFillFood('Banana', 105)" class="px-3 py-1.5 rounded-lg bg-indigo-950/30 border border-indigo-900/50 text-xs hover:border-pink-500 transition-all">🍌 Banana (105)</button>
+            <button type="button" onclick="quickFillFood('Boiled Eggs (2)', 155)" class="px-3 py-1.5 rounded-lg bg-indigo-950/30 border border-indigo-900/50 text-xs hover:border-pink-500 transition-all">🥚 Eggs (155)</button>
+            <button type="button" onclick="quickFillFood('Protein Shake', 220)" class="px-3 py-1.5 rounded-lg bg-indigo-950/30 border border-indigo-900/50 text-xs hover:border-pink-500 transition-all">🥤 Shake (220)</button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 mt-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl font-bold tracking-widest uppercase text-xs shadow-lg shadow-pink-500/20 active:scale-[0.98] transition-transform">Dock Food Log</button>
+      </form>
+
+      <!-- ACTIVITY LOG FORM -->
+      <form id="activity-form" class="hidden space-y-4" onsubmit="logActivity(event)">
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Activity Type</label>
+          <select id="activity-met" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 text-white">
+            <option value="6.0">🏃 Running (Moderate - 6.0 MET)</option>
+            <option value="8.0">🚴 Cycling (Fast - 8.0 MET)</option>
+            <option value="3.5">🚶 Walking (Brisk - 3.5 MET)</option>
+            <option value="5.5">🏋 Weightlifting (5.5 MET)</option>
+            <option value="7.0">🏊 Swimming (Moderate - 7.0 MET)</option>
+            <option value="3.0">🧘 Yoga (3.0 MET)</option>
+          </select>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Duration (min)</label>
+            <input type="number" id="activity-dur" required min="1" placeholder="e.g., 30" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 text-white placeholder-slate-500">
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Weight (kg)</label>
+            <input type="number" id="activity-weight" required min="10" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 text-white">
+          </div>
+        </div>
+
+        <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-xl text-center">
+          <span class="text-xs text-slate-400">Estimated Burn:</span>
+          <div id="activity-burn-estimate" class="text-2xl font-bold text-orange-400 mt-1">0 kcal</div>
+        </div>
+
+        <button type="submit" class="w-full py-3 mt-2 bg-gradient-to-r from-orange-500 to-amber-600 rounded-xl font-bold tracking-widest uppercase text-xs shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-transform">Launch Activity Log</button>
+      </form>
+    </section>
+
+    <!-- SECTION: SLEEP 🌙 -->
+    <section id="view-sleep" class="hidden space-y-6">
+      <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-300/70">Record Sleep Cycle</h3>
+      <form id="sleep-form" class="space-y-4" onsubmit="logSleep(event)">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Bedtime</label>
+            <input type="time" id="sleep-bed" required class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 text-white">
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Wake Time</label>
+            <input type="time" id="sleep-wake" required class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 text-white">
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400 block">Sleep Quality Rating</label>
+          <div class="flex justify-between items-center bg-indigo-950/40 border border-indigo-900/60 p-4 rounded-xl">
+            <input type="hidden" id="sleep-rating" value="4">
+            <div class="flex gap-2" id="star-rating-container">
+              <!-- Stars injected here -->
+            </div>
+            <span id="star-desc" class="text-xs font-mono text-indigo-300">Great sleep</span>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 mt-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl font-bold tracking-widest uppercase text-xs shadow-lg shadow-purple-500/20 active:scale-[0.98] transition-transform">Register Sleep Log</button>
+      </form>
+    </section>
+
+    <!-- SECTION: REPORTS ✨ -->
+    <section id="view-reports" class="hidden space-y-6">
+      <!-- Report Range Selector -->
+      <div class="flex bg-indigo-950/40 p-1 rounded-xl border border-indigo-900/30">
+        <button onclick="switchReportRange(7)" id="range-btn-7" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all">Weekly (7d)</button>
+        <button onclick="switchReportRange(30)" id="range-btn-30" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all">Monthly (30d)</button>
+      </div>
+
+      <!-- Overview Stats -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-2xl">
+          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider block">Average Intake</span>
+          <div id="avg-intake" class="text-2xl font-bold text-white mt-1">0 kcal</div>
+        </div>
+        <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-2xl">
+          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider block">Average Sleep</span>
+          <div id="avg-sleep" class="text-2xl font-bold text-white mt-1">0 hrs</div>
+        </div>
+      </div>
+
+      <!-- Calorie Bar Chart Representation (Pure Tailwind Flex Bars) -->
+      <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-2xl space-y-4">
+        <h4 class="text-xs font-mono uppercase text-slate-400 tracking-widest">Calorie Balance Overview</h4>
+        <div class="h-48 flex items-end justify-between gap-2 pt-6 pb-2" id="report-cal-chart">
+          <!-- Dynamically computed bars -->
+        </div>
+        <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-pink-500 block"></span> Intake</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-orange-400 block"></span> Burned</span>
+          <span class="flex items-center gap-1"><span class="w-5 h-0.5 border-t border-dashed border-indigo-400 block"></span> Daily Goal</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: SETTINGS ⚙ -->
+    <section id="view-settings" class="hidden space-y-6">
+      <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-300/70">Personal Specs</h3>
+      
+      <!-- General Form -->
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Daily Calorie Intake Goal (kcal)</label>
+          <input type="number" id="set-cal-goal" onchange="saveSetting('calGoal', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Body Weight (kg)</label>
+          <input type="number" id="set-weight" onchange="saveSetting('weight', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Target Sleep Goal (hours)</label>
+          <input type="number" id="set-sleep-goal" step="0.5" onchange="saveSetting('sleepGoal', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+        </div>
+      </div>
+
+      <div class="border-t border-indigo-950/60 pt-6 space-y-4">
+        <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-300/70">Data Control Deck</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="exportData()" class="py-3 bg-indigo-950/50 hover:bg-indigo-950/80 border border-indigo-800/60 rounded-xl font-bold uppercase text-[11px] tracking-wider text-indigo-300 transition-colors">Export Backup</button>
+          
+          <label class="py-3 bg-indigo-950/50 hover:bg-indigo-950/80 border border-indigo-800/60 rounded-xl font-bold uppercase text-[11px] tracking-wider text-indigo-300 text-center cursor-pointer transition-colors block">
+            Import Backup
+            <input type="file" id="import-file" onchange="importData(event)" class="hidden">
+          </label>
+        </div>
+        <button onclick="clearAllData()" class="w-full py-3 bg-red-950/30 hover:bg-red-950/50 border border-red-900/60 rounded-xl font-bold uppercase text-xs tracking-widest text-red-400 transition-colors">Wipe App Memory</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAVBAR (Navigations) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-950/80 backdrop-blur-lg border-t border-indigo-950/60 safe-bottom z-50">
+    <div class="max-w-md mx-auto flex justify-around py-3 text-slate-400">
+      <button onclick="switchView('today')" id="nav-today" class="flex flex-col items-center gap-1 text-indigo-400 transition-colors">
+        <i data-lucide="orbit" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono tracking-wide uppercase">Today</span>
+      </button>
+      <button onclick="switchView('log')" id="nav-log" class="flex flex-col items-center gap-1 hover:text-indigo-300 transition-colors">
+        <i data-lucide="satellite" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono tracking-wide uppercase">Log</span>
+      </button>
+      <button onclick="switchView('sleep')" id="nav-sleep" class="flex flex-col items-center gap-1 hover:text-indigo-300 transition-colors">
+        <i data-lucide="moon" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono tracking-wide uppercase">Sleep</span>
+      </button>
+      <button onclick="switchView('reports')" id="nav-reports" class="flex flex-col items-center gap-1 hover:text-indigo-300 transition-colors">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono tracking-wide uppercase">Reports</span>
+      </button>
+      <button onclick="switchView('settings')" id="nav-settings" class="flex flex-col items-center gap-1 hover:text-indigo-300 transition-colors">
+        <i data-lucide="settings" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono tracking-wide uppercase">Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN SCRIPT -->
+  <script>
+    // State initialization
+    let state = {
+      logs: [],
+      settings: {
+        calGoal: 2000,
+        weight: 75,
+        sleepGoal: 8
+      }
+    };
+
+    // Load state on start
+    function init() {
+      const saved = localStorage.getItem('orbit_state');
+      if (saved) {
+        state = JSON.parse(saved);
+      } else {
+        saveStateToStorage();
+      }
+      
+      // Seed default settings into UI inputs
+      document.getElementById('set-cal-goal').value = state.settings.calGoal;
+      document.getElementById('set-weight').value = state.settings.weight;
+      document.getElementById('set-sleep-goal').value = state.settings.sleepGoal;
+      document.getElementById('activity-weight').value = state.settings.weight;
+
+      initStarRating();
+      updateDynamicDate();
+      renderToday();
+      setupCalculators();
+      lucide.createIcons();
+    }
+
+    function saveStateToStorage() {
+      localStorage.setItem('orbit_state', JSON.stringify(state));
+    }
+
+    // Set up Dynamic header date
+    function updateDynamicDate() {
+      const options = { weekday: 'short', month: 'short', day: 'numeric' };
+      document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', options);
+    }
+
+    // Views router
+    function switchView(viewId) {
+      const sections = ['view-today', 'view-log', 'view-sleep', 'view-reports', 'view-settings'];
+      sections.forEach(s => {
+        document.getElementById(s).classList.add('hidden');
+      });
+      document.getElementById('view-' + viewId).classList.remove('hidden');
+
+      // Update Nav highlighting
+      const navButtons = ['nav-today', 'nav-log', 'nav-sleep', 'nav-reports', 'nav-settings'];
+      navButtons.forEach(btn => {
+        const el = document.getElementById(btn);
+        el.classList.remove('text-indigo-400');
+        el.classList.add('text-slate-400');
+      });
+      document.getElementById('nav-' + viewId).classList.remove('text-slate-400');
+      document.getElementById('nav-' + viewId).classList.add('text-indigo-400');
+
+      if (viewId === 'today') renderToday();
+      if (viewId === 'reports') renderReports(7);
+    }
+
+    // Tab switcher inside Log
+    function switchLogTab(tab) {
+      if (tab === 'food') {
+        document.getElementById('food-form').classList.remove('hidden');
+        document.getElementById('activity-form').classList.add('hidden');
+        document.getElementById('tab-btn-food').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all";
+        document.getElementById('tab-btn-activity').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+      } else {
+        document.getElementById('food-form').classList.add('hidden');
+        document.getElementById('activity-form').classList.remove('hidden');
+        document.getElementById('tab-btn-food').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+        document.getElementById('tab-btn-activity').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all";
+      }
+    }
+
+    // Today Math & Render
+    function renderToday() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayLogs = state.logs.filter(l => l.date === todayStr);
+
+      let intake = 0;
+      let burned = 0;
+      let sleep = 0;
+
+      const logContainer = document.getElementById('today-log-list');
+      logContainer.innerHTML = '';
+
+      if (todayLogs.length === 0) {
+        logContainer.innerHTML = `<p class="text-xs text-slate-500 font-mono py-4 text-center">No logs recorded for today.</p>`;
+      } else {
+        todayLogs.forEach(log => {
+          if (log.type === 'food') {
+            intake += log.val;
+            logContainer.innerHTML += createLogItemMarkup(log, 'utensils', 'text-pink-400', 'kcal');
+          } else if (log.type === 'activity') {
+            burned += log.val;
+            logContainer.innerHTML += createLogItemMarkup(log, 'flame', 'text-orange-400', 'kcal');
+          } else if (log.type === 'sleep') {
+            sleep += log.val;
+            logContainer.innerHTML += createLogItemMarkup(log, 'moon', 'text-purple-400', 'hrs');
+          }
+        });
+      }
+
+      document.getElementById('today-intake').innerText = `${intake} kcal`;
+      document.getElementById('today-burned').innerText = `${burned} kcal`;
+      document.getElementById('today-sleep').innerText = `${sleep} hrs`;
+
+      // Update Net Calories & Dial Progress
+      const netCals = intake - burned;
+      document.getElementById('net-cal-val').innerText = netCals;
+
+      const progressPercent = Math.min(Math.max((netCals / state.settings.calGoal) * 100, 0), 100).toFixed(0);
+      document.getElementById('net-cal-label').innerText = `${progressPercent}% of daily limit`;
+
+      // Animate the orbiting indicator
+      const rotationAngle = (progressPercent / 100) * 360;
+      document.getElementById('orbit-dot').style.transform = `rotate(${rotationAngle - 90}deg) translate(128px) rotate(-${rotationAngle - 90}deg)`;
+
+      lucide.createIcons();
+    }
+
+    function createLogItemMarkup(log, icon, colorClass, unit) {
+      return `
+        <div class="flex items-center justify-between bg-indigo-950/20 border border-indigo-950/50 p-3 rounded-xl">
+          <div class="flex items-center gap-3">
+            <i data-lucide="${icon}" class="${colorClass} w-4 h-4"></i>
+            <div>
+              <span class="text-xs font-semibold text-white block">${log.name}</span>
+              <span class="text-[10px] text-slate-500 font-mono">${log.time || ''}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-xs font-mono font-bold">${log.val} ${unit}</span>
+            <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Interactive MET calculator setup
+    function setupCalculators() {
+      const selectMET = document.getElementById('activity-met');
+      const inputDur = document.getElementById('activity-dur');
+      const inputWeight = document.getElementById('activity-weight');
+      const estimateText = document.getElementById('activity-burn-estimate');
+
+      function calculate() {
+        const met = parseFloat(selectMET.value);
+        const duration = parseFloat(inputDur.value) || 0;
+        const weight = parseFloat(inputWeight.value) || state.settings.weight;
+        // Formula: Burn = (MET * 3.5 * weight) / 200 * duration
+        const burn = ((met * 3.5 * weight) / 200) * duration;
+        estimateText.innerText = `${Math.round(burn)} kcal`;
+      }
+
+      selectMET.addEventListener('change', calculate);
+      inputDur.addEventListener('input', calculate);
+      inputWeight.addEventListener('input', calculate);
+    }
+
+    // Forms and Inputs Processing
+    function logFood(e) {
+      e.preventDefault();
+      const name = document.getElementById('food-name').value;
+      const cals = parseInt(document.getElementById('food-cals').value);
+      
+      const newLog = {
+        id: 'log_' + Date.now() + Math.random().toString(36).substr(2, 4),
+        type: 'food',
+        name: name,
+        val: cals,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+      };
+
+      state.logs.push(newLog);
+      saveStateToStorage();
+      
+      document.getElementById('food-form').reset();
+      switchView('today');
+    }
+
+    function quickFillFood(name, cals) {
+      document.getElementById('food-name').value = name;
+      document.getElementById('food-cals').value = cals;
+    }
+
+    function logActivity(e) {
+      e.preventDefault();
+      const metName = document.getElementById('activity-met').options[document.getElementById('activity-met').selectedIndex].text.split('(')[0].trim();
+      const metVal = parseFloat(document.getElementById('activity-met').value);
+      const duration = parseInt(document.getElementById('activity-dur').value);
+      const weight = parseFloat(document.getElementById('activity-weight').value);
+
+      const caloriesBurned = Math.round(((metVal * 3.5 * weight) / 200) * duration);
+
+      const newLog = {
+        id: 'log_' + Date.now() + Math.random().toString(36).substr(2, 4),
+        type: 'activity',
+        name: metName,
+        val: caloriesBurned,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+      };
+
+      state.logs.push(newLog);
+      saveStateToStorage();
+      
+      document.getElementById('activity-form').reset();
+      document.getElementById('activity-weight').value = state.settings.weight; // Restore default weight setup
+      document.getElementById('activity-burn-estimate').innerText = '0 kcal';
+      switchView('today');
+    }
+
+    // Star rating mechanics
+    function initStarRating() {
+      const container = document.getElementById('star-rating-container');
+      const hiddenInput = document.getElementById('sleep-rating');
+      const desc = document.getElementById('star-desc');
+      const labels = ["Poor sleep", "Mild rest", "Good rest", "Great sleep", "Amazing sleep"];
+
+      container.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        container.innerHTML += `
+          <button type="button" onclick="setStars(${i})" class="star-btn hover:scale-110 transition-transform">
+            <i data-lucide="star" class="w-6 h-6 text-slate-500 fill-transparent" id="star-${i}"></i>
+          </button>
+        `;
+      }
+      setStars(4); // Default to great sleep
+    }
+
+    function setStars(rating) {
+      document.getElementById('sleep-rating').value = rating;
+      const labels = ["Poor sleep", "Mild rest", "Good rest", "Great sleep", "Amazing sleep"];
+      document.getElementById('star-desc').innerText = labels[rating - 1];
+
+      for (let i = 1; i <= 5; i++) {
+        const star = document.getElementById(`star-${i}`);
+        if (i <= rating) {
+          star.classList.remove('text-slate-500', 'fill-transparent');
+          star.classList.add('text-purple-400', 'fill-purple-400');
+        } else {
+          star.classList.remove('text-purple-400', 'fill-purple-400');
+          star.classList.add('text-slate-500', 'fill-transparent');
+        }
+      }
+    }
+
+    function logSleep(e) {
+      e.preventDefault();
+      const bed = document.getElementById('sleep-bed').value;
+      const wake = document.getElementById('sleep-wake').value;
+      const rating = parseInt(document.getElementById('sleep-rating').value);
+
+      // Sleep Duration Math (including crossing midnight)
+      const [bedH, bedM] = bed.split(':').map(Number);
+      const [wakeH, wakeM] = wake.split(':').map(Number);
+      
+      let diffMin = (wakeH * 60 + wakeM) - (bedH * 60 + bedM);
+      if (diffMin < 0) {
+        diffMin += 24 * 60; // Offset midnight crossing
+      }
+
+      const hrs = parseFloat((diffMin / 60).toFixed(1));
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // Prevent duplicates - remove any previous sleep log for today
+      state.logs = state.logs.filter(l => !(l.date === todayStr && l.type === 'sleep'));
+
+      const newLog = {
+        id: 'log_' + Date.now() + Math.random().toString(36).substr(2, 4),
+        type: 'sleep',
+        name: `Slept (${rating}⭐)`,
+        val: hrs,
+        date: todayStr,
+        time: `${bed} to ${wake}`
+      };
+
+      state.logs.push(newLog);
+      saveStateToStorage();
+
+      document.getElementById('sleep-form').reset();
+      setStars(4);
+      switchView('today');
+    }
+
+    function deleteLog(id) {
+      state.logs = state.logs.filter(l => l.id !== id);
+      saveStateToStorage();
+      renderToday();
+    }
+
+    // Save configuration settings
+    function saveSetting(key, val) {
+      state.settings[key] = parseFloat(val);
+      if (key === 'weight') {
+        document.getElementById('activity-weight').value = val;
+      }
+      saveStateToStorage();
+    }
+
+    // Performance Reports rendering (Weekly / Monthly)
+    function switchReportRange(days) {
+      document.getElementById('range-btn-7').className = days === 7 ? "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all" : "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+      document.getElementById('range-btn-30').className = days === 30 ? "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all" : "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+      renderReports(days);
+    }
+
+    function renderReports(days) {
+      const now = new Date();
+      let dayKeys = [];
+
+      // Generate accurate sequential historical date keys
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(now.getDate() - i);
+        dayKeys.push(d.toISOString().split('T')[0]);
+      }
+
+      let totalIntake = 0;
+      let totalSleep = 0;
+      let sleepCount = 0;
+
+      let chartHTML = '';
+
+      dayKeys.forEach(dateStr => {
+        const dayLogs = state.logs.filter(l => l.date === dateStr);
+        let intake = 0;
+        let burned = 0;
+
+        dayLogs.forEach(l => {
+          if (l.type === 'food') intake += l.val;
+          if (l.type === 'activity') burned += l.val;
+          if (l.type === 'sleep') {
+            totalSleep += l.val;
+            sleepCount++;
+          }
+        });
+
+        totalIntake += intake;
+
+        // Custom visual chart styling formulas based on absolute relative values
+        const goal = state.settings.calGoal;
+        const maxExpectedVal = Math.max(goal, 3500);
+        
+        // Intake calculation heights
+        const intakeHeightPct = Math.min((intake / maxExpectedVal) * 100, 100);
+        const burnHeightPct = Math.min((burned / maxExpectedVal) * 100, 100);
+        
+        // Dynamic dates formatting labels
+        const shortDate = dateStr.substring(8, 10);
+
+        chartHTML += `
+          <div class="flex-1 flex flex-col items-center h-full justify-end group relative">
+            <!-- Tooltip Hover state -->
+            <div class="absolute bottom-full mb-1 bg-slate-900 text-[9px] rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none font-mono">
+              In: ${intake} kcal<br>Out: ${burned} kcal
+            </div>
+            
+            <div class="w-full flex justify-center items-end h-36 gap-0.5 border-b border-indigo-950/80">
+              <!-- Intake Bar -->
+              <div style="height: ${intakeHeightPct}%" class="w-2.5 bg-pink-500 rounded-t-sm shadow-[0_0_8px_rgba(236,72,153,0.2)]"></div>
+              <!-- Burn Bar -->
+              <div style="height: ${burnHeightPct}%" class="w-2.5 bg-orange-400 rounded-t-sm shadow-[0_0_8px_rgba(251,146,60,0.2)]"></div>
+            </div>
+            <span class="text-[8px] font-mono mt-1 text-slate-500">${shortDate}</span>
+          </div>
+        `;
+      });
+
+      document.getElementById('report-cal-chart').innerHTML = chartHTML;
+
+      // Stats calculation outputs
+      document.getElementById('avg-intake').innerText = `${Math.round(totalIntake / days)} kcal`;
+      document.getElementById('avg-sleep').innerText = sleepCount > 0 ? `${(totalSleep / sleepCount).toFixed(1)} hrs` : '0.0 hrs';
+    }
+
+    // Data backups Engine
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+      const link = document.createElement('a');
+      link.setAttribute("href", dataStr);
+      link.setAttribute("download", `orbit_backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    function importData(e) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed.settings && parsed.logs) {
+            state = parsed;
+            saveStateToStorage();
+            init();
+            alert('App memory restored successfully.');
+          } else {
+            alert('Invalid backup file structure.');
+          }
+        } catch (err) {
+          alert('Error reading files.');
+        }
+      };
+      reader.readAsText(e.target.files[0]);
+    }
+
+    function clearAllData() {
+      if (confirm('Are you sure you want to permanently delete all tracking logs? This cannot be undone.')) {
+        localStorage.removeItem('orbit_state');
+        state = {
+          logs: [],
+          settings: { calGoal: 2000, weight: 75, sleepGoal: 8 }
+        };
+        saveStateToStorage();
+        init();
+        switchView('today');
+      }
+    }
+
+    // Initialize System Engine
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
