@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Orbit — Space Health Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0b1e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body {
+      background-color: #0b0b1e;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    .orbit-gradient {
+      background: radial-gradient(circle at center, #1e1b4b 0%, #0b0b1e 100%);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="orbit-gradient min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+  <header class="pt-12 px-6 pb-3 flex justify-between items-center border-b border-indigo-950/40">
+    <div class="flex items-center gap-2">
+      <i data-lucide="orbit" class="text-indigo-400" style="animation: spin 20s linear infinite;"></i>
+      <h1 class="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">ORBIT</h1>
+    </div>
+    <span id="header-date" class="text-xs text-indigo-300/70 font-mono tracking-widest uppercase"></span>
+  </header>
+
+  <main class="flex-1 overflow-y-auto px-6 py-4 no-scrollbar pb-24">
+    
+    <section id="view-today" class="space-y-6">
+      <div class="relative flex flex-col items-center justify-center my-4">
+        <div class="w-64 h-64 rounded-full border-4 border-indigo-950/50 flex items-center justify-center relative shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+          <div id="orbit-dot" class="absolute w-4 h-4 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-[0_0_15px_rgba(236,72,153,0.8)]" style="transform: rotate(-90deg) translate(128px);"></div>
+          <div class="text-center z-10">
+            <span class="text-xs tracking-widest text-indigo-400 uppercase font-mono">Net Calories</span>
+            <div id="net-cal-val" class="text-4xl font-extrabold my-1 tracking-tight text-white">0</div>
+            <span id="net-cal-label" class="text-[10px] text-slate-400 uppercase font-mono tracking-wider">0% of daily limit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-indigo-950/30 border border-indigo-900/40 p-3 rounded-2xl text-center">
+          <i data-lucide="utensils" class="w-5 h-5 mx-auto text-pink-400 mb-1"></i>
+          <span class="text-[10px] text-slate-400 uppercase font-mono block">Intake</span>
+          <span id="today-intake" class="font-bold text-sm text-pink-100">0 kcal</span>
+        </div>
+        <div class="bg-indigo-950/30 border border-indigo-900/40 p-3 rounded-2xl text-center">
+          <i data-lucide="flame" class="w-5 h-5 mx-auto text-orange-400 mb-1"></i>
+          <span class="text-[10px] text-slate-400 uppercase font-mono block">Burned</span>
+          <span id="today-burned" class="font-bold text-sm text-orange-100">0 kcal</span>
+        </div>
+        <div class="bg-indigo-950/30 border border-indigo-900/40 p-3 rounded-2xl text-center">
+          <i data-lucide="moon" class="w-5 h-5 mx-auto text-purple-400 mb-1"></i>
+          <span class="text-[10px] text-slate-400 uppercase font-mono block">Sleep</span>
+          <span id="today-sleep" class="font-bold text-sm text-purple-100">0 hrs</span>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-300/70 mb-3">Today's Log</h3>
+        <div id="today-log-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <section id="view-log" class="hidden space-y-6">
+      <div class="flex bg-indigo-950/40 p-1 rounded-xl border border-indigo-900/30">
+        <button onclick="switchLogTab('food')" id="tab-btn-food" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all">Food</button>
+        <button onclick="switchLogTab('activity')" id="tab-btn-activity" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all">Activity</button>
+      </div>
+
+      <form id="food-form" class="space-y-4" onsubmit="logFood(event)">
+        <div class="space-y-2 relative">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">What did you eat?</label>
+          <input type="text" id="food-name" required autocomplete="off" placeholder="Try typing '2 eggs' or 'coffee'..." class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-500 text-white placeholder-slate-500">
+          
+          <div id="suggestions-box" class="hidden absolute left-0 right-0 top-[76px] bg-slate-950 border border-indigo-900/80 rounded-xl shadow-2xl max-h-48 overflow-y-auto z-50 divide-y divide-indigo-950/60"></div>
+        </div>
+        
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Calories (kcal)</label>
+            <span id="calc-indicator" class="text-[10px] font-mono text-emerald-400 hidden flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Calculated (Editable)
+            </span>
+          </div>
+          <input type="number" id="food-cals" required min="0" placeholder="0" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-500 text-white placeholder-slate-500">
+        </div>
+
+        <button type="submit" class="w-full py-3 mt-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl font-bold tracking-widest uppercase text-xs shadow-lg shadow-pink-500/20 active:scale-[0.98] transition-transform">Dock Food Log</button>
+      </form>
+
+      <form id="activity-form" class="hidden space-y-4" onsubmit="logActivity(event)">
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Activity Type</label>
+          <select id="activity-met" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 text-white">
+            <option value="6.0">🏃 Running (Moderate - 6.0 MET)</option>
+            <option value="8.0">🚴 Cycling (Fast - 8.0 MET)</option>
+            <option value="3.5">🚶 Walking (Brisk - 3.5 MET)</option>
+            <option value="5.5">🏋 Weightlifting (5.5 MET)</option>
+            <option value="7.0">🏊 Swimming (Moderate - 7.0 MET)</option>
+            <option value="3.0">🧘 Yoga (3.0 MET)</option>
+          </select>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Duration (min)</label>
+            <input type="number" id="activity-dur" required min="1" placeholder="30" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 text-white placeholder-slate-500">
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Weight (kg)</label>
+            <input type="number" id="activity-weight" required min="10" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 text-white">
+          </div>
+        </div>
+
+        <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-xl text-center">
+          <span class="text-xs text-slate-400">Estimated Burn:</span>
+          <div id="activity-burn-estimate" class="text-2xl font-bold text-orange-400 mt-1">0 kcal</div>
+        </div>
+
+        <button type="submit" class="w-full py-3 mt-2 bg-gradient-to-r from-orange-500 to-amber-600 rounded-xl font-bold tracking-widest uppercase text-xs shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-transform">Launch Activity Log</button>
+      </form>
+    </section>
+
+    <section id="view-sleep" class="hidden space-y-6">
+      <form id="sleep-form" class="space-y-4" onsubmit="logSleep(event)">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Bedtime</label>
+            <input type="time" id="sleep-bed" required class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 text-white">
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Wake Time</label>
+            <input type="time" id="sleep-wake" required class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 text-white">
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400 block">Sleep Quality</label>
+          <div class="flex justify-between items-center bg-indigo-950/40 border border-indigo-900/60 p-4 rounded-xl">
+            <input type="hidden" id="sleep-rating" value="4">
+            <div class="flex gap-2" id="star-rating-container"></div>
+            <span id="star-desc" class="text-xs font-mono text-indigo-300">Great sleep</span>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 mt-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl font-bold tracking-widest uppercase text-xs shadow-lg shadow-purple-500/20 active:scale-[0.98] transition-transform">Register Sleep Log</button>
+      </form>
+    </section>
+
+    <section id="view-reports" class="hidden space-y-6">
+      <div class="flex bg-indigo-950/40 p-1 rounded-xl border border-indigo-900/30">
+        <button onclick="switchReportRange(7)" id="range-btn-7" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all">Weekly (7d)</button>
+        <button onclick="switchReportRange(30)" id="range-btn-30" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all">Monthly (30d)</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-2xl">
+          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider block">Average Intake</span>
+          <div id="avg-intake" class="text-2xl font-bold text-white mt-1">0 kcal</div>
+        </div>
+        <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-2xl">
+          <span class="text-xs font-mono text-slate-400 uppercase tracking-wider block">Average Sleep</span>
+          <div id="avg-sleep" class="text-2xl font-bold text-white mt-1">0 hrs</div>
+        </div>
+      </div>
+
+      <div class="bg-indigo-950/20 border border-indigo-900/40 p-4 rounded-2xl space-y-4">
+        <h4 class="text-xs font-mono uppercase text-slate-400 tracking-widest">Calorie Balance Overview</h4>
+        <div class="h-48 flex items-end justify-between gap-2 pt-6 pb-2" id="report-cal-chart"></div>
+        <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-pink-500 block"></span> Intake</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-orange-400 block"></span> Burned</span>
+          <span class="flex items-center gap-1"><span class="w-5 h-0.5 border-t border-dashed border-indigo-400 block"></span> Goal</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-settings" class="hidden space-y-6">
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Daily Calorie Goal (kcal)</label>
+          <input type="number" id="set-cal-goal" onchange="saveSetting('calGoal', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Body Weight (kg)</label>
+          <input type="number" id="set-weight" onchange="saveSetting('weight', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Target Sleep Goal (hours)</label>
+          <input type="number" id="set-sleep-goal" step="0.5" onchange="saveSetting('sleepGoal', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+        </div>
+      </div>
+
+      <div class="border-t border-indigo-950/60 pt-6 space-y-4">
+        <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-300/70">Data Control</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="exportData()" class="py-3 bg-indigo-950/50 border border-indigo-800/60 rounded-xl font-bold uppercase text-[11px] text-indigo-300">Export Backup</button>
+          <label class="py-3 bg-indigo-950/50 border border-indigo-800/60 rounded-xl font-bold uppercase text-[11px] text-indigo-300 text-center cursor-pointer block">
+            Import Backup
+            <input type="file" id="import-file" onchange="importData(event)" class="hidden">
+          </label>
+        </div>
+        <button onclick="clearAllData()" class="w-full py-3 bg-red-950/30 border border-red-900/60 rounded-xl font-bold uppercase text-xs text-red-400">Wipe Memory</button>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-950/80 backdrop-blur-lg border-t border-indigo-950/60 safe-bottom z-50">
+    <div class="max-w-md mx-auto flex justify-around py-3 text-slate-400">
+      <button onclick="switchView('today')" id="nav-today" class="flex flex-col items-center gap-1 text-indigo-400">
+        <i data-lucide="orbit" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono uppercase">Today</span>
+      </button>
+      <button onclick="switchView('log')" id="nav-log" class="flex flex-col items-center gap-1">
+        <i data-lucide="satellite" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono uppercase">Log</span>
+      </button>
+      <button onclick="switchView('sleep')" id="nav-sleep" class="flex flex-col items-center gap-1">
+        <i data-lucide="moon" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono uppercase">Sleep</span>
+      </button>
+      <button onclick="switchView('reports')" id="nav-reports" class="flex flex-col items-center gap-1">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono uppercase">Reports</span>
+      </button>
+      <button onclick="switchView('settings')" id="nav-settings" class="flex flex-col items-center gap-1">
+        <i data-lucide="settings" class="w-5 h-5"></i>
+        <span class="text-[10px] font-mono uppercase">Specs</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    let state = {
+      logs: [],
+      settings: { calGoal: 2000, weight: 75, sleepGoal: 8 },
+      foodCache: {} // Stores user custom entries: { "black coffee": 5, "avocado toast": 340 }
+    };
+
+    // Lightweight embedded general base reference dictionary for offline fallback processing
+    const nativeDictionary = {
+      "egg": 78, "eggs": 78, "banana": 105, "coffee": 5, "apple": 95, "rice": 130, 
+      "chicken": 165, "bread": 79, "milk": 42, "avocado": 160, "protein shake": 220,
+      "oatmeal": 150, "salmon": 208, "salad": 45, "toast": 80, "yogurt": 60
+    };
+
+    function init() {
+      const saved = localStorage.getItem('orbit_state');
+      if (saved) state = JSON.parse(saved);
+      if (!state.foodCache) state.foodCache = {};
+
+      document.getElementById('set-cal-goal').value = state.settings.calGoal;
+      document.getElementById('set-weight').value = state.settings.weight;
+      document.getElementById('set-sleep-goal').value = state.settings.sleepGoal;
+      document.getElementById('activity-weight').value = state.settings.weight;
+
+      initStarRating();
+      updateDynamicDate();
+      renderToday();
+      setupCalculators();
+      setupSmartFoodParser();
+      lucide.createIcons();
+    }
+
+    function saveStateToStorage() {
+      localStorage.setItem('orbit_state', JSON.stringify(state));
+    }
+
+    function updateDynamicDate() {
+      const options = { weekday: 'short', month: 'short', day: 'numeric' };
+      document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', options);
+    }
+
+    function switchView(viewId) {
+      ['view-today', 'view-log', 'view-sleep', 'view-reports', 'view-settings'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById('view-' + viewId).classList.remove('hidden');
+
+      ['nav-today', 'nav-log', 'nav-sleep', 'nav-reports', 'nav-settings'].forEach(btn => {
+        document.getElementById(btn).classList.remove('text-indigo-400');
+        document.getElementById(btn).classList.add('text-slate-400');
+      });
+      document.getElementById('nav-' + viewId).classList.remove('text-slate-400');
+      document.getElementById('nav-' + viewId).classList.add('text-indigo-400');
+
+      if (viewId === 'today') renderToday();
+      if (viewId === 'reports') renderReports(7);
+    }
+
+    function switchLogTab(tab) {
+      if (tab === 'food') {
+        document.getElementById('food-form').classList.remove('hidden');
+        document.getElementById('activity-form').classList.add('hidden');
+        document.getElementById('tab-btn-food').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all";
+        document.getElementById('tab-btn-activity').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+      } else {
+        document.getElementById('food-form').classList.add('hidden');
+        document.getElementById('activity-form').classList.remove('hidden');
+        document.getElementById('tab-btn-food').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+        document.getElementById('tab-btn-activity').className = "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all";
+      }
+    }
+
+    // --- SMART AUTO-CALCULATION & AUTO-COMPLETE ENGINE ---
+    function setupSmartFoodParser() {
+      const foodInput = document.getElementById('food-name');
+      const calInput = document.getElementById('food-cals');
+      const sugBox = document.getElementById('suggestions-box');
+      const indicator = document.getElementById('calc-indicator');
+
+      foodInput.addEventListener('input', () => {
+        const query = foodInput.value.trim().toLowerCase();
+        
+        if (!query) {
+          sugBox.classList.add('hidden');
+          indicator.classList.add('hidden');
+          return;
+        }
+
+        // 1. Render Cache Match Suggestions Panel
+        const mergedCache = { ...nativeDictionary, ...state.foodCache };
+        const matches = Object.keys(mergedCache).filter(key => key.includes(query));
+
+        if (matches.length > 0) {
+          sugBox.innerHTML = matches.map(match => `
+            <div class="px-4 py-3 text-xs font-mono cursor-pointer hover:bg-indigo-950 flex justify-between text-slate-200" onclick="selectSuggestion('${match}', ${mergedCache[match]})">
+              <span>🪐 ${match}</span>
+              <span class="text-pink-400 font-bold">${mergedCache[match]} kcal</span>
+            </div>
+          `).join('');
+          sugBox.classList.remove('hidden');
+        } else {
+          sugBox.classList.add('hidden');
+        }
+
+        // 2. Real-time Natural Language regular expression math logic parser
+        // Handles structures like: "2 eggs", "3 bananas", "200g chicken", "100ml milk"
+        let guessedCals = null;
+        
+        // Check for basic word tracking direct match
+        if (mergedCache[query]) {
+          guessedCals = mergedCache[query];
+        } else {
+          // Check for quantity descriptors matches
+          const quantityRegex = /^(\d+(?:\.\d+)?)\s*(x|g|ml)?\s+(.+)$/i;
+          const match = query.match(quantityRegex);
+
+          if (match) {
+            const num = parseFloat(match[1]);
+            const unit = match[2] ? match[2].toLowerCase() : 'x';
+            const baseFood = match[3].trim();
+
+            if (mergedCache[baseFood]) {
+              const baseCals = mergedCache[baseFood];
+              if (unit === 'g' || unit === 'ml') {
+                guessedCals = Math.round((baseCals / 100) * num); // Assume base reference maps to 100 units
+              } else {
+                guessedCals = Math.round(baseCals * num); // Count multipliers multiplication
+              }
+            }
+          }
+        }
+
+        if (guessedCals !== null) {
+          calInput.value = guessedCals;
+          indicator.classList.remove('hidden');
+        } else {
+          indicator.classList.add('hidden');
+        }
+      });
+
+      // Close popups when clicking elsewhere
+      document.addEventListener('click', (e) => {
+        if (e.target !== foodInput) sugBox.classList.add('hidden');
+      });
+    }
+
+    function selectSuggestion(name, cals) {
+      document.getElementById('food-name').value = name;
+      document.getElementById('food-cals').value = cals;
+      document.getElementById('suggestions-box').classList.add('hidden');
+      document.getElementById('calc-indicator').classList.remove('hidden');
+    }
+
+    function logFood(e) {
+      e.preventDefault();
+      const name = document.getElementById('food-name').value;
+      const cals = parseInt(document.getElementById('food-cals').value);
+      
+      // Save specific combination string entries directly into cache library context
+      state.foodCache[name.trim().toLowerCase()] = cals;
+
+      const newLog = {
+        id: 'log_' + Date.now(),
+        type: 'food',
+        name: name,
+        val: cals,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+      };
+
+      state.logs.push(newLog);
+      saveStateToStorage();
+      
+      document.getElementById('food-form').reset();
+      document.getElementById('calc-indicator').classList.add('hidden');
+      switchView('today');
+    }
+
+    // --- STANDARD RENDER ARCHITECTURE ---
+    function renderToday() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayLogs = state.logs.filter(l => l.date === todayStr);
+
+      let intake = 0, burned = 0, sleep = 0;
+      const logContainer = document.getElementById('today-log-list');
+      logContainer.innerHTML = '';
+
+      if (todayLogs.length === 0) {
+        logContainer.innerHTML = `<p class="text-xs text-slate-500 font-mono py-4 text-center">No logs recorded for today.</p>`;
+      } else {
+        todayLogs.forEach(log => {
+          if (log.type === 'food') { intake += log.val; logContainer.innerHTML += createLogItemMarkup(log, 'utensils', 'text-pink-400', 'kcal'); }
+          else if (log.type === 'activity') { burned += log.val; logContainer.innerHTML += createLogItemMarkup(log, 'flame', 'text-orange-400', 'kcal'); }
+          else if (log.type === 'sleep') { sleep += log.val; logContainer.innerHTML += createLogItemMarkup(log, 'moon', 'text-purple-400', 'hrs'); }
+        });
+      }
+
+      document.getElementById('today-intake').innerText = `${intake} kcal`;
+      document.getElementById('today-burned').innerText = `${burned} kcal`;
+      document.getElementById('today-sleep').innerText = `${sleep} hrs`;
+
+      const netCals = intake - burned;
+      document.getElementById('net-cal-val').innerText = netCals;
+
+      const progressPercent = Math.min(Math.max((netCals / state.settings.calGoal) * 100, 0), 100).toFixed(0);
+      document.getElementById('net-cal-label').innerText = `${progressPercent}% of daily limit`;
+      
+      const rotationAngle = (progressPercent / 100) * 360;
+      document.getElementById('orbit-dot').style.transform = `rotate(${rotationAngle - 90}deg) translate(128px) rotate(-${rotationAngle - 90}deg)`;
+      lucide.createIcons();
+    }
+
+    function createLogItemMarkup(log, icon, colorClass, unit) {
+      return `
+        <div class="flex items-center justify-between bg-indigo-950/20 border border-indigo-950/50 p-3 rounded-xl">
+          <div class="flex items-center gap-3">
+            <i data-lucide="${icon}" class="${colorClass} w-4 h-4"></i>
+            <div>
+              <span class="text-xs font-semibold text-white block">${log.name}</span>
+              <span class="text-[10px] text-slate-500 font-mono">${log.time || ''}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-xs font-mono font-bold">${log.val} ${unit}</span>
+            <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      `;
+    }
+
+    function setupCalculators() {
+      const selectMET = document.getElementById('activity-met');
+      const inputDur = document.getElementById('activity-dur');
+      const inputWeight = document.getElementById('activity-weight');
+      const estimateText = document.getElementById('activity-burn-estimate');
+
+      function calculate() {
+        const met = parseFloat(selectMET.value);
+        const duration = parseFloat(inputDur.value) || 0;
+        const weight = parseFloat(inputWeight.value) || state.settings.weight;
+        const burn = ((met * 3.5 * weight) / 200) * duration;
+        estimateText.innerText = `${Math.round(burn)} kcal`;
+      }
+      [selectMET, inputDur, inputWeight].forEach(el => el.addEventListener('input', calculate));
+    }
+
+    function logActivity(e) {
+      e.preventDefault();
+      const metName = document.getElementById('activity-met').options[document.getElementById('activity-met').selectedIndex].text.split('(')[0].trim();
+      const metVal = parseFloat(document.getElementById('activity-met').value);
+      const duration = parseInt(document.getElementById('activity-dur').value);
+      const weight = parseFloat(document.getElementById('activity-weight').value);
+      const caloriesBurned = Math.round(((metVal * 3.5 * weight) / 200) * duration);
+
+      state.logs.push({
+        id: 'log_' + Date.now(), type: 'activity', name: metName, val: caloriesBurned,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+      });
+      saveStateToStorage();
+      document.getElementById('activity-form').reset();
+      document.getElementById('activity-weight').value = state.settings.weight;
+      document.getElementById('activity-burn-estimate').innerText = '0 kcal';
+      switchView('today');
+    }
+
+    function initStarRating() {
+      const container = document.getElementById('star-rating-container');
+      container.innerHTML = Array.from({length: 5}, (_, i) => `
+        <button type="button" onclick="setStars(${i+1})" class="hover:scale-110 transition-transform">
+          <i data-lucide="star" class="w-6 h-6 text-slate-500 fill-transparent" id="star-${i+1}"></i>
+        </button>
+      `).join('');
+      setStars(4);
+    }
+
+    function setStars(rating) {
+      document.getElementById('sleep-rating').value = rating;
+      const labels = ["Poor sleep", "Mild rest", "Good rest", "Great sleep", "Amazing sleep"];
+      document.getElementById('star-desc').innerText = labels[rating - 1];
+      for (let i = 1; i <= 5; i++) {
+        const star = document.getElementById(`star-${i}`);
+        if (i <= rating) star.setAttribute('class', 'w-6 h-6 text-purple-400 fill-purple-400');
+        else star.setAttribute('class', 'w-6 h-6 text-slate-500 fill-transparent');
+      }
+    }
+
+    function logSleep(e) {
+      e.preventDefault();
+      const bed = document.getElementById('sleep-bed').value;
+      const wake = document.getElementById('sleep-wake').value;
+      const rating = parseInt(document.getElementById('sleep-rating').value);
+
+      const [bedH, bedM] = bed.split(':').map(Number);
+      const [wakeH, wakeM] = wake.split(':').map(Number);
+      let diffMin = (wakeH * 60 + wakeM) - (bedH * 60 + bedM);
+      if (diffMin < 0) diffMin += 24 * 60;
+
+      const hrs = parseFloat((diffMin / 60).toFixed(1));
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      state.logs = state.logs.filter(l => !(l.date === todayStr && l.type === 'sleep'));
+      state.logs.push({ id: 'log_' + Date.now(), type: 'sleep', name: `Slept (${rating}⭐)`, val: hrs, date: todayStr, time: `${bed} to ${wake}` });
+      saveStateToStorage();
+      document.getElementById('sleep-form').reset();
+      setStars(4);
+      switchView('today');
+    }
+
+    function deleteLog(id) {
+      state.logs = state.logs.filter(l => l.id !== id);
+      saveStateToStorage();
+      renderToday();
+    }
+
+    function saveSetting(key, val) {
+      state.settings[key] = parseFloat(val);
+      if (key === 'weight') document.getElementById('activity-weight').value = val;
+      saveStateToStorage();
+    }
+
+    function switchReportRange(days) {
+      document.getElementById('range-btn-7').className = days === 7 ? "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all" : "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+      document.getElementById('range-btn-30').className = days === 30 ? "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all" : "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
+      renderReports(days);
+    }
+
+    function renderReports(days) {
+      const now = new Date();
+      let dayKeys = [];
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(); d.setDate(now.getDate() - i);
+        dayKeys.push(d.toISOString().split('T')[0]);
+      }
+
+      let totalIntake = 0, totalSleep = 0, sleepCount = 0;
+      let chartHTML = '';
+
+      dayKeys.forEach(dateStr => {
+        const dayLogs = state.logs.filter(l => l.date === dateStr);
+        let intake = 0, burned = 0;
+        dayLogs.forEach(l => {
+          if (l.type === 'food') intake += l.val;
+          if (l.type === 'activity') burned += l.val;
+          if (l.type === 'sleep') { totalSleep += l.val; sleepCount++; }
+        });
+
+        totalIntake += intake;
+        const goal = state.settings.calGoal;
+        const maxExpectedVal = Math.max(goal, 3500);
+        const intakeHeightPct = Math.min((intake / maxExpectedVal) * 100, 100);
+        const burnHeightPct = Math.min((burned / maxExpectedVal) * 100, 100);
+        const shortDate = dateStr.substring(8, 10);
+
+        chartHTML += `
+          <div class="flex-1 flex flex-col items-center h-full justify-end group relative">
+            <div class="absolute bottom-full mb-1 bg-slate-900 text-[9px] rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none font-mono">In: ${intake}<br>Out: ${burned}</div>
+            <div class="w-full flex justify-center items-end h-36 gap-0.5 border-b border-indigo-950/80">
+              <div style="height: ${intakeHeightPct}%" class="w-2 bg-pink-500 rounded-t-sm"></div>
+              <div style="height: ${burnHeightPct}%" class="w-2 bg-orange-400 rounded-t-sm"></div>
+            </div>
+            <span class="text-[8px] font-mono mt-1 text-slate-500">${shortDate}</span>
+          </div>
+        `;
+      });
+
+      document.getElementById('report-cal-chart').innerHTML = chartHTML;
+      document.getElementById('avg-intake').innerText = `${Math.round(totalIntake / days)} kcal`;
+      document.getElementById('avg-sleep').innerText = sleepCount > 0 ? `${(totalSleep / sleepCount).toFixed(1)} hrs` : '0.0 hrs';
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+      const link = document.createElement('a');
+      link.setAttribute("href", dataStr);
+      link.setAttribute("download", `orbit_backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(link); link.click(); link.remove();
+    }
+
+    function importData(e) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed.settings && parsed.logs) { state = parsed; saveStateToStorage(); init(); alert('Memory restored.'); }
+        } catch (err) { alert('Error reading file.'); }
+      };
+      reader.readAsText(e.target.files[0]);
+    }
+
+    function clearAllData() {
+      if (confirm('Permanently delete all logs?')) {
+        localStorage.removeItem('orbit_state');
+        state = { logs: [], settings: { calGoal: 2000, weight: 75, sleepGoal: 8 }, foodCache: {} };
+        saveStateToStorage(); init(); switchView('today');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
