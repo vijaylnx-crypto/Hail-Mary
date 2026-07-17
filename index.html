@@ -19,12 +19,8 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-    .safe-bottom {
-      padding-bottom: env(safe-area-inset-bottom, 16px);
-    }
-    .orbit-gradient {
-      background: radial-gradient(circle at center, #1e1b4b 0%, #0b0b1e 100%);
-    }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
+    .orbit-gradient { background: radial-gradient(circle at center, #1e1b4b 0%, #0b0b1e 100%); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -43,7 +39,7 @@
   <!-- MAIN CONTAINER -->
   <main class="flex-1 overflow-y-auto px-6 py-4 no-scrollbar pb-24">
     
-    <!-- SECTION: TODAY 🪐 -->
+    <!-- VIEW: TODAY -->
     <section id="view-today" class="space-y-6">
       <div class="relative flex flex-col items-center justify-center my-4">
         <div class="w-64 h-64 rounded-full border-4 border-indigo-950/50 flex items-center justify-center relative shadow-[0_0_50px_rgba(79,70,229,0.1)]">
@@ -85,7 +81,7 @@
       </div>
     </section>
 
-    <!-- SECTION: LOG 🛰️ -->
+    <!-- VIEW: LOG -->
     <section id="view-log" class="hidden space-y-6">
       <div class="grid grid-cols-3 bg-indigo-950/40 p-1 rounded-xl border border-indigo-900/30 text-center">
         <button onclick="switchLogTab('food')" id="tab-btn-food" class="py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all">Food</button>
@@ -104,16 +100,12 @@
           <div class="space-y-2">
             <div class="flex justify-between items-center">
               <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Calories (kcal)</label>
-              <span id="calc-indicator" class="text-[10px] font-mono text-emerald-400 hidden flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Calculated
-              </span>
+              <span id="calc-indicator" class="text-[10px] font-mono text-emerald-400 hidden flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Calculated</span>
             </div>
             <input type="number" id="food-cals" required min="0" placeholder="0" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-500 text-white placeholder-slate-500">
           </div>
           <button type="submit" class="w-full py-3 mt-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl font-bold tracking-widest uppercase text-xs shadow-lg shadow-pink-500/20 active:scale-[0.98] transition-transform">Dock Food Log</button>
         </form>
-        
-        <!-- Accordion Day-by-Day Historical Fuel Deck -->
         <div class="border-t border-indigo-950/60 pt-4">
           <h4 class="text-xs font-mono uppercase tracking-wider text-indigo-300/70 mb-3">7-Day Fuel Log By Day</h4>
           <div id="history-accordion-food" class="space-y-2"></div>
@@ -174,18 +166,16 @@
       </div>
     </section>
 
-    <!-- SECTION: SLEEP 🌙 -->
+    <!-- VIEW: SLEEP -->
     <section id="view-sleep" class="hidden space-y-6">
       <div class="w-full bg-indigo-950/20 border border-indigo-900/40 rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[0_0_30px_rgba(139,92,246,0.05)]">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" class="w-40 h-28 drop-shadow-[0_0_10px_rgba(168,85,247,0.4)]">
-          <circle cx="150" cy="40" r="1.5" fill="#fff" opacity="0.4"/>
-          <circle cx="40" cy="80" r="1" fill="#fff" opacity="0.3"/>
+          <circle cx="150" cy="40" r="1.5" fill="#fff" opacity="0.4"/><circle cx="40" cy="80" r="1" fill="#fff" opacity="0.3"/>
           <circle cx="90" cy="25" r="2" fill="#fff" opacity="0.6" class="animate-pulse"/>
           <path d="M110 30 A 30 30 0 1 0 160 80 A 24 24 0 1 1 110 30 Z" fill="#c084fc"/>
           <path d="M40 95 C 70 85, 110 85, 160 95 C 140 105, 60 105, 40 95 Z" fill="#312e81" opacity="0.6"/>
-          <path d="M60 95 C 80 88, 110 88, 130 95 Z" fill="#4c1d95"/>
-          <text x="65" y="65" fill="#e9d5ff" font-family="monospace" font-size="10" opacity="0.8" letter-spacing="2">Z</text>
-          <text x="77" y="53" fill="#e9d5ff" font-family="monospace" font-size="14" opacity="0.6" letter-spacing="2">Z</text>
+          <text x="65" y="65" fill="#e9d5ff" font-family="monospace" font-size="10" opacity="0.8">Z</text>
+          <text x="77" y="53" fill="#e9d5ff" font-family="monospace" font-size="14" opacity="0.6">Z</text>
         </svg>
         <span class="text-[10px] font-mono tracking-widest text-purple-400 uppercase mt-2">Stasis Pod Active</span>
       </div>
@@ -213,7 +203,7 @@
       </form>
     </section>
 
-    <!-- SECTION: REPORTS ✨ -->
+    <!-- VIEW: REPORTS -->
     <section id="view-reports" class="hidden space-y-6">
       <div class="flex bg-indigo-950/40 p-1 rounded-xl border border-indigo-900/30">
         <button onclick="switchReportRange(7)" id="range-btn-7" class="flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all">Weekly (7d)</button>
@@ -242,7 +232,7 @@
       </div>
     </section>
 
-    <!-- SECTION: SETTINGS ⚙ -->
+    <!-- VIEW: SETTINGS -->
     <section id="view-settings" class="hidden space-y-6">
       <div class="space-y-4">
         <div class="space-y-2">
@@ -250,7 +240,7 @@
           <input type="number" id="set-cal-goal" onchange="saveSetting('calGoal', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
         </div>
         <div class="space-y-2">
-          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Base Baseline Weight (kg)</label>
+          <label class="text-xs font-mono uppercase tracking-wider text-slate-400">Base Weight (kg)</label>
           <input type="number" step="0.1" id="set-weight" onchange="saveSetting('weight', this.value)" class="w-full bg-indigo-950/50 border border-indigo-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
         </div>
         <div class="space-y-2">
@@ -260,20 +250,10 @@
       </div>
 
       <div class="border-t border-indigo-950/60 pt-6 space-y-4">
-        <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-400/80 flex items-center gap-1.5"><i data-lucide="book-open" class="w-4 h-4"></i> Mission Launch Guide</h3>
-        <div class="bg-indigo-950/30 border border-indigo-900/40 rounded-xl p-4 space-y-3 text-xs leading-relaxed text-slate-300">
-          <p><strong class="text-indigo-300">Privacy First:</strong> All parameters live solely in device memory (<code class="bg-slate-950 px-1 py-0.5 rounded text-pink-300">localStorage</code>).</p>
-        </div>
-      </div>
-
-      <div class="border-t border-indigo-950/60 pt-4 space-y-4">
         <h3 class="text-xs uppercase font-mono tracking-widest text-indigo-300/70">Data Control</h3>
         <div class="grid grid-cols-2 gap-3">
           <button onclick="exportData()" class="py-3 bg-indigo-950/50 border border-indigo-800/60 rounded-xl font-bold uppercase text-[11px] text-indigo-300">Export Backup</button>
-          <label class="py-3 bg-indigo-950/50 border border-indigo-800/60 rounded-xl font-bold uppercase text-[11px] text-indigo-300 text-center cursor-pointer block">
-            Import Backup
-            <input type="file" id="import-file" onchange="importData(event)" class="hidden">
-          </label>
+          <label class="py-3 bg-indigo-950/50 border border-indigo-800/60 rounded-xl font-bold uppercase text-[11px] text-indigo-300 text-center cursor-pointer block">Import Backup<input type="file" id="import-file" onchange="importData(event)" class="hidden"></label>
         </div>
         <button onclick="clearAllData()" class="w-full py-3 bg-red-950/30 border border-red-900/60 rounded-xl font-bold uppercase text-xs text-red-400">Wipe Memory</button>
       </div>
@@ -284,43 +264,18 @@
   <!-- BOTTOM NAVBAR -->
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-950/80 backdrop-blur-lg border-t border-indigo-950/60 safe-bottom z-50">
     <div class="max-w-md mx-auto flex justify-around py-3 text-slate-400">
-      <button onclick="switchView('today')" id="nav-today" class="flex flex-col items-center gap-1 text-indigo-400">
-        <i data-lucide="rocket" class="w-5 h-5"></i>
-        <span class="text-[10px] font-mono uppercase">Today</span>
-      </button>
-      <button onclick="switchView('log')" id="nav-log" class="flex flex-col items-center gap-1">
-        <i data-lucide="satellite" class="w-5 h-5"></i>
-        <span class="text-[10px] font-mono uppercase">Log</span>
-      </button>
-      <button onclick="switchView('sleep')" id="nav-sleep" class="flex flex-col items-center gap-1">
-        <i data-lucide="moon" class="w-5 h-5"></i>
-        <span class="text-[10px] font-mono uppercase">Sleep</span>
-      </button>
-      <button onclick="switchView('reports')" id="nav-reports" class="flex flex-col items-center gap-1">
-        <i data-lucide="sparkles" class="w-5 h-5"></i>
-        <span class="text-[10px] font-mono uppercase">Reports</span>
-      </button>
-      <button onclick="switchView('settings')" id="nav-settings" class="flex flex-col items-center gap-1">
-        <i data-lucide="settings" class="w-5 h-5"></i>
-        <span class="text-[10px] font-mono uppercase">Specs</span>
-      </button>
+      <button onclick="switchView('today')" id="nav-today" class="flex flex-col items-center gap-1 text-indigo-400"><i data-lucide="rocket" class="w-5 h-5"></i><span class="text-[10px] font-mono uppercase">Today</span></button>
+      <button onclick="switchView('log')" id="nav-log" class="flex flex-col items-center gap-1"><i data-lucide="satellite" class="w-5 h-5"></i><span class="text-[10px] font-mono uppercase">Log</span></button>
+      <button onclick="switchView('sleep')" id="nav-sleep" class="flex flex-col items-center gap-1"><i data-lucide="moon" class="w-5 h-5"></i><span class="text-[10px] font-mono uppercase">Sleep</span></button>
+      <button onclick="switchView('reports')" id="nav-reports" class="flex flex-col items-center gap-1"><i data-lucide="sparkles" class="w-5 h-5"></i><span class="text-[10px] font-mono uppercase">Reports</span></button>
+      <button onclick="switchView('settings')" id="nav-settings" class="flex flex-col items-center gap-1"><i data-lucide="settings" class="w-5 h-5"></i><span class="text-[10px] font-mono uppercase">Specs</span></button>
     </div>
   </nav>
 
-  <!-- LOGIC DECK -->
+  <!-- SCRIPT CONTEXT -->
   <script>
-    let state = {
-      logs: [],
-      settings: { calGoal: 2000, weight: 75, sleepGoal: 8 },
-      foodCache: {},
-      accordionState: {} // Tracks open/close states for historical cards
-    };
-
-    const nativeDictionary = {
-      "egg": 78, "eggs": 78, "banana": 105, "coffee": 5, "apple": 95, "rice": 130, 
-      "chicken": 165, "bread": 79, "milk": 42, "avocado": 160, "protein shake": 220,
-      "oatmeal": 150, "salmon": 208, "salad": 45, "toast": 80, "yogurt": 60
-    };
+    let state = { logs: [], settings: { calGoal: 2000, weight: 75, sleepGoal: 8 }, foodCache: {}, accordionState: {} };
+    const nativeDictionary = { "egg": 78, "eggs": 78, "banana": 105, "coffee": 5, "apple": 95, "rice": 130, "chicken": 165, "bread": 79, "milk": 42, "avocado": 160, "protein shake": 220 };
 
     function init() {
       const saved = localStorage.getItem('hail_mary_state');
@@ -333,32 +288,16 @@
       document.getElementById('set-sleep-goal').value = state.settings.sleepGoal;
       document.getElementById('activity-weight').value = state.settings.weight;
 
-      initStarRating();
-      updateDynamicDate();
-      renderToday();
-      setupCalculators();
-      setupSmartFoodParser();
-      renderHistoricalAccordionTabs();
-      lucide.createIcons();
+      initStarRating(); updateDynamicDate(); renderToday(); setupCalculators(); setupSmartFoodParser(); renderHistoricalAccordionTabs(); lucide.createIcons();
     }
 
-    function saveStateToStorage() {
-      localStorage.setItem('hail_mary_state', JSON.stringify(state));
-    }
-
-    function updateDynamicDate() {
-      const options = { weekday: 'short', month: 'short', day: 'numeric' };
-      document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', options);
-    }
+    function saveStateToStorage() { localStorage.setItem('hail_mary_state', JSON.stringify(state)); }
+    function updateDynamicDate() { document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
 
     function switchView(viewId) {
       ['view-today', 'view-log', 'view-sleep', 'view-reports', 'view-settings'].forEach(s => document.getElementById(s).classList.add('hidden'));
       document.getElementById('view-' + viewId).classList.remove('hidden');
-
-      ['nav-today', 'nav-log', 'nav-sleep', 'nav-reports', 'nav-settings'].forEach(btn => {
-        document.getElementById(btn).className = (btn === 'nav-' + viewId) ? "flex flex-col items-center gap-1 text-indigo-400" : "flex flex-col items-center gap-1 text-slate-400";
-      });
-
+      ['nav-today', 'nav-log', 'nav-sleep', 'nav-reports', 'nav-settings'].forEach(btn => { document.getElementById(btn).className = (btn === 'nav-' + viewId) ? "flex flex-col items-center gap-1 text-indigo-400" : "flex flex-col items-center gap-1 text-slate-400"; });
       if (viewId === 'today') renderToday();
       if (viewId === 'log') renderHistoricalAccordionTabs();
       if (viewId === 'reports') renderReports(7);
@@ -366,545 +305,137 @@
     }
 
     function switchLogTab(tab) {
-      const tabs = ['food', 'activity', 'weight'];
-      const containers = ['food-container', 'activity-container', 'weight-container'];
-      
-      tabs.forEach((t, idx) => {
+      ['food', 'activity', 'weight'].forEach((t, idx) => {
         const btn = document.getElementById('tab-btn-' + t);
-        const box = document.getElementById(containers[idx]);
-        if (t === tab) {
-          btn.className = "py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all";
-          box.classList.remove('hidden');
-        } else {
-          btn.className = "py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
-          box.classList.add('hidden');
-        }
+        const box = document.getElementById(['food-container', 'activity-container', 'weight-container'][idx]);
+        if (t === tab) { btn.className = "py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all"; box.classList.remove('hidden'); }
+        else { btn.className = "py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all"; box.classList.add('hidden'); }
       });
-      renderHistoricalAccordionTabs();
-      lucide.createIcons();
+      renderHistoricalAccordionTabs(); lucide.createIcons();
     }
 
-    // Toggle specific accordion rows locally
     function toggleAccordionDay(tabType, dateStr) {
-      const key = `${tabType}_${dateStr}`;
-      state.accordionState[key] = !state.accordionState[key];
-      saveStateToStorage();
-      renderHistoricalAccordionTabs();
-      lucide.createIcons();
+      const key = `${tabType}_${dateStr}`; state.accordionState[key] = !state.accordionState[key]; saveStateToStorage(); renderHistoricalAccordionTabs(); lucide.createIcons();
     }
 
-    // --- DAY OF WEEK & CALENDAR DATE ACCORDION TRACKING BUILD ---
     function renderHistoricalAccordionTabs() {
       const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      
-      // Compute explicit calendar target keys for the past 7 days sequentially
       let sequentialDays = [];
       for (let i = 0; i < 7; i++) {
-        let d = new Date();
-        d.setDate(d.getDate() - i);
-        
-        const isoString = d.toISOString().split('T')[0];
-        const displayLabel = `${dayNames[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
-        
-        sequentialDays.push({ dateKey: isoString, label: displayLabel });
+        let d = new Date(); d.setDate(d.getDate() - i);
+        sequentialDays.push({ dateKey: d.toISOString().split('T')[0], label: `${dayNames[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}` });
       }
 
-      const logTypes = ['food', 'activity', 'weight'];
-      const targetContainers = ['history-accordion-food', 'history-accordion-activity', 'history-accordion-weight'];
-      const inputColors = ['text-pink-400 focus:border-pink-500', 'text-orange-400 focus:border-orange-500', 'text-emerald-400 focus:border-emerald-500'];
-      const units = ['kcal', 'kcal', 'kg'];
-
-      logTypes.forEach((type, typeIdx) => {
-        const containerEl = document.getElementById(targetContainers[typeIdx]);
+      ['food', 'activity', 'weight'].forEach((type, typeIdx) => {
+        const containerEl = document.getElementById(['history-accordion-food', 'history-accordion-activity', 'history-accordion-weight'][typeIdx]);
         containerEl.innerHTML = '';
-
         sequentialDays.forEach(day => {
           const matchingLogs = state.logs.filter(l => l.date === day.dateKey && l.type === type);
-          const totalSummary = matchingLogs.reduce((sum, current) => sum + current.val, 0);
-          
-          const accordionKey = `${type}_${day.dateKey}`;
-          const isOpen = !!state.accordionState[accordionKey];
+          const totalSummary = matchingLogs.reduce((sum, c) => sum + c.val, 0);
+          const isOpen = !!state.accordionState[`${type}_${day.dateKey}`];
 
-          // Sub-rows item generator block
-          let itemsHtml = '';
-          if (matchingLogs.length === 0) {
-            itemsHtml = `<p class="text-[10px] text-slate-600 font-mono py-1.5 pl-2">No telemetry recorded.</p>`;
-          } else {
-            itemsHtml = matchingLogs.map(l => {
-              const displayTitle = type === 'weight' ? 'Mass Sync' : l.name;
-              const inputStep = type === 'weight' ? 'step="0.1"' : '';
-              const changeHandler = type === 'weight' ? `updateHistoryLogWeight('${l.id}', this.value)` : `updateHistoryLogVal('${l.id}', this.value)`;
-              
-              return `
-                <div class="flex items-center justify-between border-b border-indigo-950/40 py-2 pl-2 gap-2">
-                  <div class="flex flex-col min-w-0 flex-1">
-                    <span class="text-xs text-slate-300 truncate font-sans">${displayTitle}</span>
-                    <span class="text-[9px] text-slate-500 font-mono">${l.time}</span>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <input type="number" ${inputStep} value="${l.val}" onchange="${changeHandler}" class="w-16 text-right bg-indigo-950/80 border border-indigo-900/60 rounded px-1.5 py-0.5 text-xs font-mono font-bold focus:outline-none ${inputColors[typeIdx]}">
-                    <span class="text-[10px] font-mono text-slate-500 w-7">${units[typeIdx]}</span>
-                    <button onclick="deleteLog('${l.id}')" class="text-slate-500 hover:text-red-400 px-1"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
-                  </div>
-                </div>
-              `;
-            }).join('');
-          }
-
-          const borderAccent = type === 'food' ? 'border-pink-900/30' : type === 'activity' ? 'border-orange-900/30' : 'border-emerald-900/30';
-          const iconChevron = isOpen ? 'chevron-up' : 'chevron-down';
-          const badgeSummary = type === 'weight' ? (matchingLogs.length > 0 ? `${matchingLogs[matchingLogs.length-1].val.toFixed(1)} kg` : '--') : `${Math.round(totalSummary)} ${units[typeIdx]}`;
-
-          const accordionBlock = `
-            <div class="bg-indigo-950/10 border ${borderAccent} rounded-xl overflow-hidden">
-              <!-- Header Click Bar Toggle Trigger -->
-              <div onclick="toggleAccordionDay('${type}', '${day.dateKey}')" class="flex justify-between items-center px-4 py-3 cursor-pointer bg-indigo-950/30 hover:bg-indigo-950/50 transition-colors select-none">
-                <div class="flex flex-col">
-                  <span class="text-xs font-mono font-bold text-slate-200">${day.label}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-mono text-slate-400 font-semibold bg-indigo-950/80 px-2 py-0.5 rounded-md border border-indigo-900/30">${badgeSummary}</span>
-                  <i data-lucide="${iconChevron}" class="w-4 h-4 text-slate-400"></i>
-                </div>
-              </div>
-              
-              <!-- Target Dynamic Drawer items container panel -->
-              <div class="${isOpen ? 'block' : 'hidden'} px-4 pb-2 pt-1 bg-slate-950/30 border-t border-indigo-950/50 transition-all duration-300">
-                ${itemsHtml}
+          let itemsHtml = matchingLogs.length === 0 ? `<p class="text-[10px] text-slate-600 font-mono py-1.5 pl-2">No telemetry recorded.</p>` : matchingLogs.map(l => `
+            <div class="flex items-center justify-between border-b border-indigo-950/40 py-2 pl-2 gap-2">
+              <span class="text-xs text-slate-300 truncate">${type === 'weight' ? 'Mass Sync' : l.name}</span>
+              <div class="flex items-center gap-1.5">
+                <input type="number" ${type === 'weight' ? 'step="0.1"' : ''} value="${l.val}" onchange="${type === 'weight' ? 'updateHistoryLogWeight' : 'updateHistoryLogVal'}('${l.id}', this.value)" class="w-16 text-right bg-indigo-950 border border-indigo-900 rounded px-1.5 py-0.5 text-xs font-mono">
+                <span class="text-[10px] font-mono text-slate-500 w-7">${['kcal', 'kcal', 'kg'][typeIdx]}</span>
+                <button onclick="deleteLog('${l.id}')" class="text-slate-500"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
               </div>
             </div>
-          `;
-          containerEl.innerHTML += accordionBlock;
+          `).join('');
+
+          containerEl.innerHTML += `
+            <div class="bg-indigo-950/10 border border-indigo-900/20 rounded-xl overflow-hidden mb-2">
+              <div onclick="toggleAccordionDay('${type}', '${day.dateKey}')" class="flex justify-between items-center px-4 py-3 cursor-pointer bg-indigo-950/30">
+                <span class="text-xs font-mono text-slate-200">${day.label}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono text-slate-400 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-900/30">${type==='weight'?(matchingLogs.length?`${matchingLogs[matchingLogs.length-1].val} kg`:'--'):`${Math.round(totalSummary)} ${['kcal','kcal','kg'][typeIdx]}`}</span>
+                  <i data-lucide="${isOpen?'chevron-up':'chevron-down'}" class="w-4 h-4 text-slate-400"></i>
+                </div>
+              </div>
+              <div class="${isOpen?'block':'hidden'} px-4 pb-2 pt-1 bg-slate-950/30 border-t border-indigo-950/50">${itemsHtml}</div>
+            </div>`;
         });
       });
     }
 
-    function updateHistoryLogVal(id, newVal) {
-      const log = state.logs.find(l => l.id === id);
-      if (log) {
-        log.val = Math.max(parseInt(newVal) || 0, 0);
-        saveStateToStorage();
-        renderToday();
-      }
-    }
-
+    function updateHistoryLogVal(id, newVal) { const log = state.logs.find(l => l.id === id); if (log) { log.val = Math.max(parseInt(newVal) || 0, 0); saveStateToStorage(); renderToday(); } }
     function updateHistoryLogWeight(id, newVal) {
       const log = state.logs.find(l => l.id === id);
       if (log) {
-        const mass = Math.max(parseFloat(newVal) || 0, 10);
-        log.val = mass;
-        
-        const weightLogs = state.logs.filter(l => l.type === 'weight');
-        if(weightLogs.length > 0 && weightLogs[weightLogs.length - 1].id === id) {
-          state.settings.weight = mass;
-          document.getElementById('set-weight').value = mass;
-          document.getElementById('activity-weight').value = mass;
-        }
-        saveStateToStorage();
-        renderToday();
+        const mass = Math.max(parseFloat(newVal) || 0, 10); log.val = mass;
+        const wLogs = state.logs.filter(l => l.type === 'weight');
+        if(wLogs.length > 0 && wLogs[wLogs.length - 1].id === id) { state.settings.weight = mass; document.getElementById('set-weight').value = mass; document.getElementById('activity-weight').value = mass; }
+        saveStateToStorage(); renderToday();
       }
     }
 
     function setupSmartFoodParser() {
-      const foodInput = document.getElementById('food-name');
-      const calInput = document.getElementById('food-cals');
-      const sugBox = document.getElementById('suggestions-box');
-      const indicator = document.getElementById('calc-indicator');
-
+      const foodInput = document.getElementById('food-name'), calInput = document.getElementById('food-cals'), sugBox = document.getElementById('suggestions-box'), indicator = document.getElementById('calc-indicator');
       foodInput.addEventListener('input', () => {
         const query = foodInput.value.trim().toLowerCase();
-        
-        if (!query) {
-          sugBox.classList.add('hidden');
-          indicator.classList.add('hidden');
-          return;
-        }
-
-        const mergedCache = { ...nativeDictionary, ...state.foodCache };
-        const matches = Object.keys(mergedCache).filter(key => key.includes(query));
-
-        if (matches.length > 0) {
-          sugBox.innerHTML = matches.map(match => `
-            <div class="px-4 py-3 text-xs font-mono cursor-pointer hover:bg-indigo-950 flex justify-between text-slate-200" onclick="selectSuggestion('${match}', ${mergedCache[match]})">
-              <span>🚀 ${match}</span>
-              <span class="text-pink-400 font-bold">${mergedCache[match]} kcal</span>
-            </div>
-          `).join('');
-          sugBox.classList.remove('hidden');
-        } else {
-          sugBox.classList.add('hidden');
-        }
-
-        let guessedCals = null;
-        if (mergedCache[query]) {
-          guessedCals = mergedCache[query];
-        } else {
-          const quantityRegex = /^(\d+(?:\.\d+)?)\s*(x|g|ml)?\s+(.+)$/i;
-          const match = query.match(quantityRegex);
-
-          if (match) {
-            const num = parseFloat(match[1]);
-            const unit = match[2] ? match[2].toLowerCase() : 'x';
-            const baseFood = match[3].trim();
-
-            if (mergedCache[baseFood]) {
-              const baseCals = mergedCache[baseFood];
-              if (unit === 'g' || unit === 'ml') {
-                guessedCals = Math.round((baseCals / 100) * num);
-              } else {
-                guessedCals = Math.round(baseCals * num);
-              }
-            }
-          }
-        }
-
-        if (guessedCals !== null) {
-          calInput.value = guessedCals;
-          indicator.classList.remove('hidden');
-        } else {
-          indicator.classList.add('hidden');
-        }
+        if (!query) { sugBox.classList.add('hidden'); indicator.classList.add('hidden'); return; }
+        const mergedCache = { ...nativeDictionary, ...state.foodCache }, matches = Object.keys(mergedCache).filter(key => key.includes(query));
+        sugBox.innerHTML = matches.map(m => `<div class="px-4 py-3 text-xs font-mono cursor-pointer hover:bg-indigo-950 flex justify-between text-slate-200" onclick="selectSuggestion('${m}', ${mergedCache[m]})"><span>🚀 ${m}</span><span class="text-pink-400 font-bold">${mergedCache[m]} kcal</span></div>`).join('');
+        matches.length ? sugBox.classList.remove('hidden') : sugBox.classList.add('hidden');
+        let gCals = mergedCache[query] || null;
+        if (!gCals) { const m = query.match(/^(\d+(?:\.\d+)?)\s*(x|g|ml)?\s+(.+)$/i); if (m && mergedCache[m[3].trim()]) gCals = Math.round((m[2]==='g'||m[2]==='ml'?mergedCache[m[3].trim()]/100:mergedCache[m[3].trim()]) * parseFloat(m[1])); }
+        if (gCals) { calInput.value = gCals; indicator.classList.remove('hidden'); } else indicator.classList.add('hidden');
       });
-
-      document.addEventListener('click', (e) => {
-        if (e.target !== foodInput) sugBox.classList.add('hidden');
-      });
+      document.addEventListener('click', (e) => { if (e.target !== foodInput) sugBox.classList.add('hidden'); });
     }
 
-    function selectSuggestion(name, cals) {
-      document.getElementById('food-name').value = name;
-      document.getElementById('food-cals').value = cals;
-      document.getElementById('suggestions-box').classList.add('hidden');
-      document.getElementById('calc-indicator').classList.remove('hidden');
-    }
-
-    function logFood(e) {
-      e.preventDefault();
-      const name = document.getElementById('food-name').value;
-      const cals = parseInt(document.getElementById('food-cals').value);
-      
-      state.foodCache[name.trim().toLowerCase()] = cals;
-
-      state.logs.push({
-        id: 'log_' + Date.now(), type: 'food', name: name, val: cals,
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-      });
-      saveStateToStorage();
-      
-      document.getElementById('food-form').reset();
-      document.getElementById('calc-indicator').classList.add('hidden');
-      renderHistoricalAccordionTabs();
-      switchView('today');
-    }
-
-    function logWeight(e) {
-      e.preventDefault();
-      const massVal = parseFloat(document.getElementById('weight-val').value);
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      state.logs = state.logs.filter(l => !(l.date === todayStr && l.type === 'weight'));
-
-      state.logs.push({
-        id: 'log_' + Date.now(), type: 'weight', name: 'Mass Checked', val: massVal,
-        date: todayStr,
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-      });
-
-      state.settings.weight = massVal;
-      document.getElementById('set-weight').value = massVal;
-      document.getElementById('activity-weight').value = massVal;
-
-      saveStateToStorage();
-      document.getElementById('weight-form').reset();
-      renderHistoricalAccordionTabs();
-      switchView('today');
-    }
+    function selectSuggestion(name, cals) { document.getElementById('food-name').value = name; document.getElementById('food-cals').value = cals; document.getElementById('suggestions-box').classList.add('hidden'); document.getElementById('calc-indicator').classList.remove('hidden'); }
+    function logFood(e) { e.preventDefault(); const n = document.getElementById('food-name').value, c = parseInt(document.getElementById('food-cals').value); state.foodCache[n.toLowerCase()] = c; state.logs.push({ id: 'log_'+Date.now(), type: 'food', name: n, val: c, date: new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) }); saveStateToStorage(); document.getElementById('food-form').reset(); document.getElementById('calc-indicator').classList.add('hidden'); renderHistoricalAccordionTabs(); switchView('today'); }
+    function logWeight(e) { e.preventDefault(); const m = window.parseFloat(document.getElementById('weight-val').value), t = new Date().toISOString().split('T')[0]; state.logs = state.logs.filter(l => !(l.date === t && l.type === 'weight')); state.logs.push({ id: 'log_'+Date.now(), type: 'weight', name: 'Mass Checked', val: m, date: t, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) }); state.settings.weight = m; document.getElementById('set-weight').value = m; document.getElementById('activity-weight').value = m; saveStateToStorage(); document.getElementById('weight-form').reset(); renderHistoricalAccordionTabs(); switchView('today'); }
+    function logActivity(e) { e.preventDefault(); const el = document.getElementById('activity-met'), name = el.options[el.selectedIndex].text.split('(')[0].trim(), met = parseFloat(el.value), dur = parseInt(document.getElementById('activity-dur').value), w = parseFloat(document.getElementById('activity-weight').value), burn = Math.round(((met*3.5*w)/200)*dur); state.logs.push({ id: 'log_'+Date.now(), type: 'activity', name: name, val: burn, date: new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) }); saveStateToStorage(); document.getElementById('activity-form').reset(); document.getElementById('activity-weight').value = state.settings.weight; document.getElementById('activity-burn-estimate').innerText = '0 kcal'; renderHistoricalAccordionTabs(); switchView('today'); }
 
     function renderToday() {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const todayLogs = state.logs.filter(l => l.date === todayStr);
-
-      let intake = 0, burned = 0, sleep = 0;
-      let targetWeight = state.settings.weight;
-
-      const weightLog = todayLogs.find(l => l.type === 'weight');
-      if (weightLog) targetWeight = weightLog.val;
-
-      const logContainer = document.getElementById('today-log-list');
-      logContainer.innerHTML = '';
-
-      if (todayLogs.length === 0) {
-        logContainer.innerHTML = `<p class="text-xs text-slate-500 font-mono py-4 text-center">No mission parameters recorded today.</p>`;
-      } else {
-        todayLogs.forEach(log => {
-          if (log.type === 'food') { intake += log.val; logContainer.innerHTML += createLogItemMarkup(log, 'utensils', 'text-pink-400', 'kcal'); }
-          else if (log.type === 'activity') { burned += log.val; logContainer.innerHTML += createLogItemMarkup(log, 'flame', 'text-orange-400', 'kcal'); }
-          else if (log.type === 'sleep') { sleep += log.val; logContainer.innerHTML += createLogItemMarkup(log, 'moon', 'text-purple-400', 'hrs'); }
-          else if (log.type === 'weight') { logContainer.innerHTML += createLogItemMarkup(log, 'scale', 'text-emerald-400', 'kg'); }
-        });
-      }
-
-      document.getElementById('today-intake').innerText = `${intake} kcal`;
-      document.getElementById('today-burned').innerText = `${burned} kcal`;
-      document.getElementById('today-sleep').innerText = `${sleep} hrs`;
-      document.getElementById('today-weight').innerText = `${targetWeight.toFixed(1)} kg`;
-
-      const netCals = intake - burned;
-      document.getElementById('net-cal-val').innerText = netCals;
-
-      const progressPercent = Math.min(Math.max((netCals / state.settings.calGoal) * 100, 0), 100).toFixed(0);
-      document.getElementById('net-cal-label').innerText = `${progressPercent}% of payload limit`;
-      
-      const rotationAngle = (progressPercent / 100) * 360;
-      document.getElementById('orbit-dot').style.transform = `rotate(${rotationAngle - 90}deg) translate(128px) rotate(-${rotationAngle - 90}deg)`;
-      lucide.createIcons();
+      const t = new Date().toISOString().split('T')[0], tLogs = state.logs.filter(l => l.date === t);
+      let inK = 0, outK = 0, slp = 0, mass = state.settings.weight;
+      const wLog = tLogs.find(l => l.type === 'weight'); if (wLog) mass = wLog.val;
+      document.getElementById('today-log-list').innerHTML = tLogs.length ? tLogs.map(l => {
+        if(l.type==='food') inK+=l.val; if(l.type==='activity') outK+=l.val; if(l.type==='sleep') slp+=l.val;
+        return createLogItemMarkup(l, l.type==='food'?'utensils':l.type==='activity'?'flame':l.type==='sleep'?'moon':'scale', l.type==='food'?'text-pink-400':l.type==='activity'?'text-orange-400':l.type==='sleep'?'text-purple-400':'text-emerald-400', l.type==='sleep'?'hrs':l.type==='weight'?'kg':'kcal');
+      }).join('') : `<p class="text-xs text-slate-500 font-mono py-4 text-center">No mission parameters recorded today.</p>`;
+      document.getElementById('today-intake').innerText = `${inK} kcal`; document.getElementById('today-burned').innerText = `${outK} kcal`; document.getElementById('today-sleep').innerText = `${slp} hrs`; document.getElementById('today-weight').innerText = `${mass.toFixed(1)} kg`;
+      const net = inK - outK; document.getElementById('net-cal-val').innerText = net;
+      const pct = Math.min(Math.max((net / state.settings.calGoal) * 100, 0), 100).toFixed(0); document.getElementById('net-cal-label').innerText = `${pct}% of payload limit`;
+      document.getElementById('orbit-dot').style.transform = `rotate(${(pct/100)*360-90}deg) translate(128px) rotate(-${(pct/100)*360-90}deg)`; lucide.createIcons();
     }
 
-    function createLogItemMarkup(log, icon, colorClass, unit) {
-      return `
-        <div class="flex items-center justify-between bg-indigo-950/20 border border-indigo-950/50 p-3 rounded-xl">
-          <div class="flex items-center gap-3">
-            <i data-lucide="${icon}" class="${colorClass} w-4 h-4"></i>
-            <div>
-              <span class="text-xs font-semibold text-white block">${log.name}</span>
-              <span class="text-[10px] text-slate-500 font-mono">${log.time || ''}</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-4">
-            <span class="text-xs font-mono font-bold">${log.val} ${unit}</span>
-            <button onclick="deleteLog('${log.id}')" class="text-slate-500 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
-          </div>
-        </div>
-      `;
-    }
-
-    function setupCalculators() {
-      const selectMET = document.getElementById('activity-met');
-      const inputDur = document.getElementById('activity-dur');
-      const inputWeight = document.getElementById('activity-weight');
-      const estimateText = document.getElementById('activity-burn-estimate');
-
-      function calculate() {
-        const met = parseFloat(selectMET.value);
-        const duration = parseFloat(inputDur.value) || 0;
-        const weight = parseFloat(inputWeight.value) || state.settings.weight;
-        const burn = ((met * 3.5 * weight) / 200) * duration;
-        estimateText.innerText = `${Math.round(burn)} kcal`;
-      }
-      [selectMET, inputDur, inputWeight].forEach(el => el.addEventListener('input', calculate));
-    }
-
-    function logActivity(e) {
-      e.preventDefault();
-      const metName = document.getElementById('activity-met').options[document.getElementById('activity-met').selectedIndex].text.split('(')[0].trim();
-      const metVal = parseFloat(document.getElementById('activity-met').value);
-      const duration = parseInt(document.getElementById('activity-dur').value);
-      const weight = parseFloat(document.getElementById('activity-weight').value);
-      const caloriesBurned = Math.round(((metVal * 3.5 * weight) / 200) * duration);
-
-      state.logs.push({
-        id: 'log_' + Date.now(), type: 'activity', name: metName, val: caloriesBurned,
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-      });
-      saveStateToStorage();
-      document.getElementById('activity-form').reset();
-      document.getElementById('activity-weight').value = state.settings.weight;
-      document.getElementById('activity-burn-estimate').innerText = '0 kcal';
-      renderHistoricalAccordionTabs();
-      switchView('today');
-    }
-
-    function initStarRating() {
-      const container = document.getElementById('star-rating-container');
-      container.innerHTML = Array.from({length: 5}, (_, i) => `
-        <button type="button" onclick="setStars(${i+1})" class="hover:scale-110 transition-transform">
-          <i data-lucide="star" class="w-6 h-6 text-slate-500 fill-transparent" id="star-${i+1}"></i>
-        </button>
-      `).join('');
-      setStars(4);
-    }
-
-    function setStars(rating) {
-      document.getElementById('sleep-rating').value = rating;
-      const labels = ["Restless", "Minimal", "Stable", "Deep Sleep", "Optimal"];
-      document.getElementById('star-desc').innerText = labels[rating - 1];
-      for (let i = 1; i <= 5; i++) {
-        const star = document.getElementById(`star-${i}`);
-        if (i <= rating) star.setAttribute('class', 'w-6 h-6 text-purple-400 fill-purple-400');
-        else star.setAttribute('class', 'w-6 h-6 text-slate-500 fill-transparent');
-      }
-    }
-
-    function logSleep(e) {
-      e.preventDefault();
-      const bed = document.getElementById('sleep-bed').value;
-      const wake = document.getElementById('sleep-wake').value;
-      const rating = parseInt(document.getElementById('sleep-rating').value);
-
-      const [bedH, bedM] = bed.split(':').map(Number);
-      const [wakeH, wakeM] = wake.split(':').map(Number);
-      let diffMin = (wakeH * 60 + wakeM) - (bedH * 60 + bedM);
-      if (diffMin < 0) diffMin += 24 * 60;
-
-      const hrs = parseFloat((diffMin / 60).toFixed(1));
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      state.logs = state.logs.filter(l => !(l.date === todayStr && l.type === 'sleep'));
-      state.logs.push({ id: 'log_' + Date.now(), type: 'sleep', name: `Stasis Duration (${rating}⭐)`, val: hrs, date: todayStr, time: `${bed} to ${wake}` });
-      saveStateToStorage();
-      document.getElementById('sleep-form').reset();
-      setStars(4);
-      switchView('today');
-    }
-
-    function deleteLog(id) {
-      const targetLog = state.logs.find(l => l.id === id);
-      state.logs = state.logs.filter(l => l.id !== id);
-
-      if (targetLog && targetLog.type === 'weight') {
-        const remainingWeightLogs = state.logs.filter(l => l.type === 'weight');
-        if (remainingWeightLogs.length > 0) {
-          state.settings.weight = remainingWeightLogs[remainingWeightLogs.length - 1].val;
-        }
-        document.getElementById('set-weight').value = state.settings.weight;
-        document.getElementById('activity-weight').value = state.settings.weight;
-      }
-
-      saveStateToStorage();
-      renderToday();
-      renderHistoricalAccordionTabs();
-      lucide.createIcons();
-    }
-
-    function saveSetting(key, val) {
-      state.settings[key] = parseFloat(val);
-      if (key === 'weight') document.getElementById('activity-weight').value = val;
-      saveStateToStorage();
-    }
-
-    function switchReportRange(days) {
-      document.getElementById('range-btn-7').className = days === 7 ? "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all" : "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
-      document.getElementById('range-btn-30').className = days === 30 ? "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all" : "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all";
-      renderReports(days);
-    }
+    function createLogItemMarkup(l, icon, col, unit) { return `<div class="flex items-center justify-between bg-indigo-950/20 border border-indigo-950/50 p-3 rounded-xl mb-2"><div class="flex items-center gap-3"><i data-lucide="${icon}" class="${col} w-4 h-4"></i><div><span class="text-xs font-semibold text-white block">${l.name}</span><span class="text-[10px] text-slate-500 font-mono">${l.time}</span></div></div><div class="flex items-center gap-4"><span class="text-xs font-mono font-bold">${l.val} ${unit}</span><button onclick="deleteLog('${l.id}')" class="text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button></div></div>`; }
+    function setupCalculators() { const s = document.getElementById('activity-met'), d = document.getElementById('activity-dur'), w = document.getElementById('activity-weight'), calc = () => { document.getElementById('activity-burn-estimate').innerText = `${Math.round(((parseFloat(s.value)*3.5*(parseFloat(w.value)||state.settings.weight))/200)*(parseFloat(d.value)||0))} kcal`; }; [s,d,w].forEach(el => el.addEventListener('input', calc)); }
+    function initStarRating() { document.getElementById('star-rating-container').innerHTML = Array.from({length: 5}, (_, i) => `<button type="button" onclick="setStars(${i+1})"><i data-lucide="star" class="w-6 h-6 text-slate-500 fill-transparent" id="star-${i+1}"></i></button>`).join(''); setStars(4); }
+    function setStars(r) { document.getElementById('sleep-rating').value = r; document.getElementById('star-desc').innerText = ["Restless", "Minimal", "Stable", "Deep Sleep", "Optimal"][r-1]; for (let i=1; i<=5; i++) document.getElementById(`star-${i}`).setAttribute('class', i<=r ? 'w-6 h-6 text-purple-400 fill-purple-400' : 'w-6 h-6 text-slate-500 fill-transparent'); }
+    function logSleep(e) { e.preventDefault(); const b = document.getElementById('sleep-bed').value, w = document.getElementById('sleep-wake').value, r = parseInt(document.getElementById('sleep-rating').value); let [bH, bM] = b.split(':').map(Number), [wH, wM] = w.split(':').map(Number), diff = (wH*60+wM)-(bH*60+bM); if(diff<0) diff+=1440; const hrs = parseFloat((diff/60).toFixed(1)), todayStr = new Date().toISOString().split('T')[0]; state.logs = state.logs.filter(l => !(l.date === todayStr && l.type === 'sleep')); state.logs.push({ id: 'log_'+Date.now(), type: 'sleep', name: `Stasis Duration (${r}⭐)`, val: hrs, date: todayStr, time: `${b} to ${w}` }); saveStateToStorage(); document.getElementById('sleep-form').reset(); setStars(4); switchView('today'); }
+    function deleteLog(id) { const target = state.logs.find(l=>l.id===id); state.logs = state.logs.filter(l=>l.id!==id); if (target && target.type==='weight') { const rem = state.logs.filter(l=>l.type==='weight'); if (rem.length) { state.settings.weight = rem[rem.length-1].val; document.getElementById('set-weight').value = state.settings.weight; document.getElementById('activity-weight').value = state.settings.weight; } } saveStateToStorage(); renderToday(); renderHistoricalAccordionTabs(); lucide.createIcons(); }
+    function saveSetting(k, v) { state.settings[k] = parseFloat(v); if (k === 'weight') document.getElementById('activity-weight').value = v; saveStateToStorage(); }
+    function switchReportRange(days) { ['range-btn-7', 'range-btn-30'].forEach(b => document.getElementById(b).className = (b==='range-btn-'+days) ? "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-white bg-indigo-900/60 transition-all" : "flex-1 py-2 text-xs font-mono uppercase tracking-wider rounded-lg text-slate-400 transition-all"); renderReports(days); }
 
     function renderReports(days) {
-      const now = new Date();
-      let dayKeys = [];
-      for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(); d.setDate(now.getDate() - i);
-        dayKeys.push(d.toISOString().split('T')[0]);
-      }
-
-      let totalIntake = 0;
-      let chartHTML = '';
-      let weightChartHTML = '';
-
-      dayKeys.forEach(dateStr => {
-        const dayLogs = state.logs.filter(l => l.date === dateStr);
-        let intake = 0, burned = 0;
-        
-        dayLogs.forEach(l => {
-          if (l.type === 'food') intake += l.val;
-          if (l.type === 'activity') burned += l.val;
-        });
-
-        totalIntake += intake;
-        const goal = state.settings.calGoal;
-        const maxExpectedVal = Math.max(goal, 3500);
-        const intakeHeightPct = Math.min((intake / maxExpectedVal) * 100, 100);
-        const burnHeightPct = Math.min((burned / maxExpectedVal) * 100, 100);
-        const shortDate = dateStr.substring(8, 10);
-
-        chartHTML += `
-          <div class="flex-1 flex flex-col items-center h-full justify-end group relative">
-            <div class="absolute bottom-full mb-1 bg-slate-900 text-[9px] rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none font-mono">In: ${intake}<br>Out: ${burned}</div>
-            <div class="w-full flex justify-center items-end h-36 gap-0.5 border-b border-indigo-950/80">
-              <div style="height: ${intakeHeightPct}%" class="w-2 bg-pink-500 rounded-t-sm"></div>
-              <div style="height: ${burnHeightPct}%" class="w-2 bg-orange-400 rounded-t-sm"></div>
-            </div>
-            <span class="text-[8px] font-mono mt-1 text-slate-500">${shortDate}</span>
-          </div>
-        `;
+      let dayKeys = []; for (let i=days-1; i>=0; i--) { let d = new Date(); d.setDate(d.getDate()-i); dayKeys.push(d.toISOString().split('T')[0]); }
+      let totalIn = 0, cChart = '', wChart = '';
+      dayKeys.forEach(dk => {
+        const dLogs = state.logs.filter(l => l.date === dk); let inf = 0, actf = 0; dLogs.forEach(l => { if(l.type==='food') inf+=l.val; if(l.type==='activity') actf+=l.val; });
+        totalIn += inf; const maxE = Math.max(state.settings.calGoal, 3500);
+        cChart += `<div class="flex-1 flex flex-col items-center h-full justify-end group relative"><div class="absolute bottom-full mb-1 bg-slate-900 text-[9px] rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none font-mono">In: ${inf}<br>Out: ${actf}</div><div class="w-full flex justify-center items-end h-36 gap-0.5 border-b border-indigo-950/80"><div style="height: ${(inf/maxE)*100}%" class="w-2 bg-pink-500 rounded-t-sm"></div><div style="height: ${(actf/maxE)*100}%" class="w-2 bg-orange-400 rounded-t-sm"></div></div><span class="text-[8px] font-mono mt-1 text-slate-500">${dk.substring(8,10)}</span></div>`;
       });
-
-      let initialWeightPoints = state.logs.filter(l => l.type === 'weight');
-      let startWeight = state.settings.weight;
-      let currentWeight = state.settings.weight;
-
-      if (initialWeightPoints.length > 0) {
-        startWeight = initialWeightPoints[0].val;
-        currentWeight = initialWeightPoints[initialWeightPoints.length - 1].val;
-      }
-      
-      const deltaWeight = currentWeight - startWeight;
-      document.getElementById('avg-weight-delta').innerText = (deltaWeight >= 0 ? '+' : '') + deltaWeight.toFixed(1) + ' kg';
-      document.getElementById('avg-weight-delta').className = deltaWeight <= 0 ? "text-2xl font-bold text-emerald-400 mt-1" : "text-2xl font-bold text-rose-400 mt-1";
-
-      let minW = 40, maxW = 150;
-      if(initialWeightPoints.length > 0) {
-        const vals = initialWeightPoints.map(p => p.val);
-        minW = Math.min(...vals) - 2;
-        maxW = Math.max(...vals) + 2;
-      }
-      if (minW === maxW) { minW -= 5; maxW += 5; }
-
-      dayKeys.forEach(dateStr => {
-        const point = initialWeightPoints.find(p => p.date === dateStr);
-        const shortDate = dateStr.substring(8, 10);
-        let heightPct = 0;
-        let indicatorBubble = "No Entry";
-
-        if(point) {
-          heightPct = ((point.val - minW) / (maxW - minW)) * 100;
-          indicatorBubble = `${point.val.toFixed(1)} kg`;
-        }
-
-        weightChartHTML += `
-          <div class="flex-1 flex flex-col items-center h-full justify-end group relative">
-            <div class="absolute bottom-full mb-1 bg-slate-900 text-[9px] rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none font-mono">${indicatorBubble}</div>
-            <div class="w-full flex justify-center items-end h-28 border-b border-indigo-950/80">
-              ${point ? `<div style="height: ${Math.max(heightPct, 8)}%" class="w-2 bg-emerald-400 rounded-t-full"></div>` : `<div class="w-1 h-1 rounded-full bg-indigo-950/40 mb-1"></div>`}
-            </div>
-            <span class="text-[8px] font-mono mt-1 text-slate-500">${shortDate}</span>
-          </div>
-        `;
+      let wPoints = state.logs.filter(l => l.type === 'weight'), sW = state.settings.weight, cW = state.settings.weight; if (wPoints.length) { sW = wPoints[0].val; cW = wPoints[wPoints.length-1].val; }
+      const dW = cW - sW; document.getElementById('avg-weight-delta').innerText = (dW >= 0 ? '+' : '') + dW.toFixed(1) + ' kg'; document.getElementById('avg-weight-delta').className = dW <= 0 ? "text-2xl font-bold text-emerald-400 mt-1" : "text-2xl font-bold text-rose-400 mt-1";
+      let minW = wPoints.length ? Math.min(...wPoints.map(p=>p.val))-2 : 40, maxW = wPoints.length ? Math.max(...wPoints.map(p=>p.val))+2 : 150; if(minW===maxW){ minW-=5; maxW+=5; }
+      dayKeys.forEach(dk => {
+        const p = wPoints.find(pt => pt.date === dk);
+        wChart += `<div class="flex-1 flex flex-col items-center h-full justify-end group relative"><div class="absolute bottom-full mb-1 bg-slate-900 text-[9px] rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">${p?`${p.val} kg`:'No data'}</div><div class="w-full flex justify-center items-end h-28 border-b border-indigo-950/80">${p?`<div style="height: ${Math.max(((p.val-minW)/(maxW-minW))*100, 8)}%" class="w-2 bg-emerald-400 rounded-t-full"></div>`:`<div class="w-1 h-1 rounded-full bg-indigo-950/40 mb-1"></div>`}</div><span class="text-[8px] font-mono mt-1 text-slate-500">${dk.substring(8,10)}</span></div>`;
       });
-
-      document.getElementById('report-cal-chart').innerHTML = chartHTML;
-      document.getElementById('report-weight-chart').innerHTML = weightChartHTML;
-      document.getElementById('avg-intake').innerText = `${Math.round(totalIntake / days)} kcal`;
+      document.getElementById('report-cal-chart').innerHTML = cChart; document.getElementById('report-weight-chart').innerHTML = wChart; document.getElementById('avg-intake').innerText = `${Math.round(totalIn / days)} kcal`;
     }
 
-    function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-      const link = document.createElement('a');
-      link.setAttribute("href", dataStr);
-      link.setAttribute("download", `hail_mary_backup_${new Date().toISOString().split('T')[0]}.json`);
-      document.body.appendChild(link); link.click(); link.remove();
-    }
-
-    function importData(e) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        try {
-          const parsed = JSON.parse(event.target.result);
-          if (parsed.settings && parsed.logs) { state = parsed; saveStateToStorage(); init(); alert('Memory restored.'); }
-        } catch (err) { alert('Error reading file.'); }
-      };
-      reader.readAsText(e.target.files[0]);
-    }
-
-    function clearAllData() {
-      if (confirm('Permanently delete all logs?')) {
-        localStorage.removeItem('hail_mary_state');
-        state = { logs: [], settings: { calGoal: 2000, weight: 75, sleepGoal: 8 }, foodCache: {}, accordionState: {} };
-        saveStateToStorage(); init(); switchView('today');
-      }
-    }
+    function exportData() { const link = document.createElement('a'); link.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state))); link.setAttribute("download", `hail_mary_backup_${new Date().toISOString().split('T')[0]}.json`); document.body.appendChild(link); link.click(); link.remove(); }
+    function importData(e) { const r = new FileReader(); r.onload = function(evt) { try { const p = JSON.parse(evt.target.result); if (p.settings && p.logs) { state = p; saveStateToStorage(); init(); alert('Memory restored.'); } } catch(err) { alert('Error reading file.'); } }; r.readAsText(e.target.files[0]); }
+    function clearAllData() { if (confirm('Permanently delete all logs?')) { localStorage.removeItem('hail_mary_state'); state = { logs: [], settings: { calGoal: 2000, weight: 75, sleepGoal: 8 }, foodCache: {}, accordionState: {} }; saveStateToStorage(); init(); switchView('today'); } }
 
     window.addEventListener('DOMContentLoaded', init);
   </script>
