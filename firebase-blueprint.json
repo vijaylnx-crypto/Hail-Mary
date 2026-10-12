@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account profile document",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 1024 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email"]
+    },
+    "UserData": {
+      "title": "UserData",
+      "description": "User synchronized health and fitness logs",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "settings": { "type": "object" },
+        "foods": { "type": "array" },
+        "activities": { "type": "array" },
+        "sleeps": { "type": "array" },
+        "weights": { "type": "array" },
+        "waters": { "type": "array" },
+        "myFoods": { "type": "array" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["userId", "settings"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Private user account profile"
+    },
+    "/users/{userId}/data/{dataId}": {
+      "schema": "UserData",
+      "description": "User personal health logs and settings"
+    }
+  }
+}

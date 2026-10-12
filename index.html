@@ -3,17 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0A0D1E">
+<meta name="theme-color" content="#0A0D1E" id="metaThemeColor">
+<meta name="description" content="Space-themed health, fitness, calorie, and biometric tracker.">
+<meta property="og:title" content="ORBIT — Health Tracker">
+<meta property="og:description" content="Space-themed health, fitness, calorie, and biometric tracker.">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>Orbit — Health Tracker</title>
+<link rel="icon" href="icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>ORBIT — Health Tracker</title>
 <style>
 :root{
   --void:#0A0D1E; --nebula:#141A33; --nebula-2:#1B2244; --line:#262E55;
   --starlight:#E8EBFA; --comet:#8B93C4;
   --solar:#FFB454; --aurora:#53E6C5; --lunar:#A78BFA; --danger:#FF6B81;
   --radius:16px;
+  --card-shadow:none;
+  --dial-glow:rgba(167,139,250,.10);
+  --nav-bg:rgba(13,17,36,.92);
+  --modal-bg:rgba(5,7,16,.7);
+}
+[data-theme="outdoor"]{
+  --void:#F4F6FB;
+  --nebula:#FFFFFF;
+  --nebula-2:#E8ECF5;
+  --line:#CBD5E1;
+  --starlight:#0A0F1D;
+  --comet:#475569;
+  --solar:#D97706;
+  --aurora:#0D9488;
+  --lunar:#6D28D9;
+  --danger:#DC2626;
+  --card-shadow:0 1px 3px rgba(10,15,29,.06), 0 4px 12px rgba(10,15,29,.03);
+  --dial-glow:rgba(109,40,217,.08);
+  --nav-bg:rgba(255,255,255,.94);
+  --modal-bg:rgba(10,15,29,.55);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -22,25 +45,33 @@ body{
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   font-size:16px; line-height:1.45; overflow-x:hidden;
   padding-bottom:calc(76px + env(safe-area-inset-bottom));
+  transition:background-color .2s ease, color .2s ease;
 }
 /* starfield */
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
 #stars circle{animation:twinkle 4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.9}}
 @media (prefers-reduced-motion:reduce){#stars circle{animation:none}}
+[data-theme="outdoor"] #stars{display:none}
+
 main{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:18px 16px 24px}
 /* header */
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .brand{display:flex;align-items:center;gap:10px}
 .brand svg{flex:none}
-.brand h1{font-size:19px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.brand h1{font-size:19px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#d4daf4;font-family:system-ui}
 .brand small{display:block;font-size:10.5px;color:var(--comet);letter-spacing:.22em;text-transform:uppercase;font-weight:600}
-.iconbtn{background:var(--nebula);border:1px solid var(--line);color:var(--starlight);width:40px;height:40px;border-radius:12px;font-size:18px;display:grid;place-items:center;cursor:pointer}
+.iconbtn{background:var(--nebula);border:1px solid var(--line);color:var(--starlight);width:40px;height:40px;border-radius:12px;font-size:18px;display:grid;place-items:center;cursor:pointer;transition:background-color .2s,border-color .2s,color .2s}
+.iconbtn:hover{border-color:var(--lunar)}
+[data-theme="outdoor"] .iconbtn{background:#FFFFFF;border-color:#CBD5E1;color:#0A0F1D;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
+[data-theme="outdoor"] .iconbtn:active{background:var(--nebula-2)}
+
 /* sections & cards */
 .screen{display:none}.screen.active{display:block;animation:rise .25s ease}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.screen.active{animation:none}}
-.card{background:var(--nebula);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.card{background:var(--nebula);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--card-shadow);transition:background-color .2s,border-color .2s}
+[data-theme="outdoor"] .card{border-color:#CBD5E1}
 .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--comet);margin-bottom:8px}
 h2{font-size:17px;font-weight:700;margin-bottom:10px}
 /* orbit dial */
@@ -48,15 +79,20 @@ h2{font-size:17px;font-weight:700;margin-bottom:10px}
 .net-label{margin-top:6px;font-size:12px;color:var(--comet);letter-spacing:.18em;text-transform:uppercase;font-weight:600}
 /* stat row */
 .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.stat{background:var(--nebula);border:1px solid var(--line);border-radius:var(--radius);padding:12px;text-align:center}
+.stat{background:var(--nebula);border:1px solid var(--line);border-radius:var(--radius);padding:12px;text-align:center;box-shadow:var(--card-shadow);transition:background-color .2s,border-color .2s}
+[data-theme="outdoor"] .stat{background:#FFFFFF;border-color:#CBD5E1}
 .stat .val{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
 .stat .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--comet);margin-top:3px;font-weight:600}
 .stat.in .val{color:var(--solar)}.stat.out .val{color:var(--aurora)}.stat.zz .val{color:var(--lunar)}
+[data-theme="outdoor"] .stat.in .val{color:#B45309}
+[data-theme="outdoor"] .stat.out .val{color:#0F766E}
+[data-theme="outdoor"] .stat.zz .val{color:#6D28D9}
 /* entry list */
 .entry{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .entry:last-child{border-bottom:0}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
-.dot.in{background:var(--solar)}.dot.out{background:var(--aurora)}.dot.zz{background:var(--lunar)}
+.dot.in{background:var(--solar)}.dot.out{background:var(--aurora)}.dot.zz{background:var(--lunar)}.dot.h2o{background:#38BDF8}
+[data-theme="outdoor"] .dot.h2o{background:#0284C7}
 .entry .info{flex:1;min-width:0}
 .entry .name{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .entry .meta{font-size:12px;color:var(--comet)}
@@ -65,49 +101,314 @@ h2{font-size:17px;font-weight:700;margin-bottom:10px}
 .empty{color:var(--comet);font-size:14px;text-align:center;padding:18px 6px}
 /* forms */
 label{display:block;font-size:12px;font-weight:600;color:var(--comet);letter-spacing:.08em;text-transform:uppercase;margin:12px 0 5px}
-input,select{width:100%;background:var(--void);border:1px solid var(--line);border-radius:12px;color:var(--starlight);padding:12px;font-size:16px;outline:none}
+input,select{width:100%;background:var(--void);border:1px solid var(--line);border-radius:12px;color:var(--starlight);padding:12px;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s}
 input:focus,select:focus{border-color:var(--lunar)}
+[data-theme="outdoor"] input,[data-theme="outdoor"] select{background:#FFFFFF;border-color:#94A3B8;color:#0A0F1D}
+[data-theme="outdoor"] input:focus,[data-theme="outdoor"] select:focus{border-color:var(--lunar);box-shadow:0 0 0 3px rgba(109,40,217,.12)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{width:100%;border:0;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;color:#0A0D1E}
-.btn.solar{background:var(--solar)}.btn.aurora{background:var(--aurora)}.btn.lunar{background:var(--lunar)}
+.btn{width:100%;border:0;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;color:#0A0D1E;transition:opacity .15s,filter .15s}
+.btn.solar{background:var(--solar)}.btn.aurora{background:var(--aurora)}.btn.lunar{background:var(--lunar)}.btn.aqua{background:#38BDF8;color:#0A0D1E}
 .btn.ghost{background:var(--nebula-2);color:var(--starlight);border:1px solid var(--line)}
+[data-theme="outdoor"] .btn.solar{background:var(--solar);color:#FFFFFF}
+[data-theme="outdoor"] .btn.aurora{background:var(--aurora);color:#FFFFFF}
+[data-theme="outdoor"] .btn.lunar{background:var(--lunar);color:#FFFFFF}
+[data-theme="outdoor"] .btn.aqua{background:#0284C7;color:#FFFFFF}
+[data-theme="outdoor"] .btn.ghost{background:#FFFFFF;color:#0A0F1D;border-color:#CBD5E1}
+[data-theme="outdoor"] .btn.ghost:hover{background:var(--nebula-2)}
 /* segment control */
 .seg{display:flex;background:var(--void);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:14px}
-.seg button{flex:1;background:none;border:0;color:var(--comet);font-weight:700;font-size:13.5px;padding:9px 4px;border-radius:9px;cursor:pointer}
+.seg button{flex:1;background:none;border:0;color:var(--comet);font-weight:700;font-size:13.5px;padding:9px 4px;border-radius:9px;cursor:pointer;transition:background-color .2s,color .2s}
 .seg button.on{background:var(--nebula-2);color:var(--starlight)}
+[data-theme="outdoor"] .seg{background:#E2E8F0;border-color:#CBD5E1}
+[data-theme="outdoor"] .seg button{color:#475569}
+[data-theme="outdoor"] .seg button.on{background:#FFFFFF;color:#0A0F1D;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .chip{background:var(--nebula-2);border:1px solid var(--line);color:var(--starlight);border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer}
+[data-theme="outdoor"] .chip{background:#FFFFFF;border-color:#CBD5E1;color:#0A0F1D;font-weight:600}
 /* stars rating */
 .qstars{display:flex;gap:8px;margin-top:4px}
 .qstars button{background:none;border:0;font-size:26px;color:var(--line);cursor:pointer;padding:2px}
 .qstars button.on{color:var(--lunar)}
 /* report */
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.kpi{background:var(--nebula);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.kpi{background:var(--nebula);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:var(--card-shadow)}
+[data-theme="outdoor"] .kpi{background:#FFFFFF;border-color:#CBD5E1}
 .kpi .v{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
 .kpi .l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--comet);margin-top:2px;font-weight:600}
 .legend{display:flex;gap:16px;font-size:12px;color:var(--comet);margin-top:8px;justify-content:center}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
 /* tab bar */
-nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:rgba(13,17,36,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:var(--nav-bg);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
 nav button{flex:1;background:none;border:0;color:var(--comet);font-size:11px;font-weight:600;letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;cursor:pointer;border-radius:12px}
 nav button.on{color:var(--starlight)}
 nav button .ic{font-size:19px;line-height:1}
 nav button.on .ic{filter:drop-shadow(0 0 6px rgba(167,139,250,.8))}
+[data-theme="outdoor"] nav{border-top-color:#CBD5E1;box-shadow:0 -2px 10px rgba(0,0,0,0.04)}
+[data-theme="outdoor"] nav button{color:#64748B}
+[data-theme="outdoor"] nav button.on{color:#0A0F1D;font-weight:700}
+[data-theme="outdoor"] nav button.on .ic{filter:drop-shadow(0 2px 4px rgba(109,40,217,.25))}
 /* modal */
-.modal{position:fixed;inset:0;z-index:10;background:rgba(5,7,16,.7);display:none;align-items:flex-end;justify-content:center}
+.modal{position:fixed;inset:0;z-index:10;background:var(--modal-bg);display:none;align-items:flex-end;justify-content:center}
 .modal.open{display:flex}
 .sheet{background:var(--nebula);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:18px 16px 28px;max-height:86vh;overflow:auto}
+[data-theme="outdoor"] .sheet{background:#FFFFFF;border-color:#CBD5E1}
 .sheet h2{display:flex;justify-content:space-between;align-items:center}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom));background:var(--nebula-2);border:1px solid var(--line);color:var(--starlight);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:20;opacity:0;transition:opacity .25s;pointer-events:none}
+[data-theme="outdoor"] .toast{background:#0A0F1D;border-color:#0A0F1D;color:#FFFFFF;box-shadow:0 4px 14px rgba(0,0,0,0.18)}
 .toast.show{opacity:1}
 .note{font-size:12.5px;color:var(--comet);margin-top:8px}
 hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
 #micBtn.rec{background:var(--danger);border-color:var(--danger);animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 .mic-miss{color:var(--comet);font-size:13px;padding:6px 0}
+/* Gemini Header button */
+.gemini-btn{
+  background:linear-gradient(135deg, rgba(167,139,250,.2), rgba(83,230,197,.2));
+  border:1px solid var(--lunar);
+  color:var(--starlight);
+  padding:0 12px;
+  height:40px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  cursor:pointer;
+  transition:all .2s ease;
+  white-space:nowrap;
+}
+.gemini-btn:hover{
+  background:linear-gradient(135deg, rgba(167,139,250,.35), rgba(83,230,197,.35));
+  box-shadow:0 0 10px rgba(167,139,250,.3);
+  transform:translateY(-1px);
+}
+[data-theme="outdoor"] .gemini-btn{
+  background:linear-gradient(135deg, #F5F3FF, #EEF2F6);
+  border-color:#7C3AED;
+  color:#6D28D9;
+  box-shadow:0 1px 3px rgba(109,40,217,.1);
+}
+/* Gemini Banner Card */
+.gemini-banner{
+  transition:border-color .2s, transform .2s, box-shadow .2s;
+}
+.gemini-banner:hover{
+  border-color:var(--aurora);
+  box-shadow:0 2px 12px rgba(167,139,250,.15);
+  transform:translateY(-1px);
+}
+.gemini-badge-orb{
+  width:36px;
+  height:36px;
+  border-radius:12px;
+  background:linear-gradient(135deg, var(--lunar), var(--aurora));
+  display:grid;
+  place-items:center;
+  font-size:17px;
+  flex:none;
+}
+/* Gemini Modal Sheet */
+.gemini-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.gemini-sparkle-avatar{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  background:linear-gradient(135deg, var(--lunar), var(--solar));
+  display:grid;
+  place-items:center;
+  font-size:18px;
+  box-shadow:0 0 10px rgba(167,139,250,.3);
+}
+.gemini-sub{
+  font-size:11px;
+  color:var(--comet);
+  font-weight:600;
+  letter-spacing:.02em;
+}
+/* Context strip */
+.gemini-context-card{
+  background:var(--void);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:12px;
+  color:var(--starlight);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.dot-live{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--aurora);
+  box-shadow:0 0 6px var(--aurora);
+  flex:none;
+  animation:livePulse 2s infinite ease-in-out;
+}
+@keyframes livePulse{
+  0%,100%{transform:scale(1);opacity:.8}
+  50%{transform:scale(1.3);opacity:1}
+}
+/* Voice Orb */
+.voice-stage{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:16px 0 6px;
+}
+.orb-container{
+  width:140px;
+  height:140px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  margin-bottom:10px;
+}
+.voice-orb{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #C4B5FD, #7C3AED 70%, #4C1D95);
+  box-shadow:0 0 25px rgba(167,139,250,.5);
+  position:relative;
+  display:grid;
+  place-items:center;
+  transition:all .3s ease;
+}
+.voice-orb.listening{
+  background:radial-gradient(circle at 35% 35%, #99F6E4, #0D9488 70%, #115E59);
+  box-shadow:0 0 35px rgba(83,230,197,.7);
+  animation:orbListen 1.5s infinite ease-in-out;
+}
+.voice-orb.speaking{
+  background:radial-gradient(circle at 35% 35%, #FDE68A, #D97706 70%, #78350F);
+  box-shadow:0 0 45px rgba(255,180,84,.85);
+  animation:orbSpeak 1s infinite ease-in-out;
+}
+.orb-core{
+  font-size:26px;
+  color:#FFFFFF;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  pointer-events:none;
+}
+.orb-ring{
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  border:1.5px solid rgba(167,139,250,.35);
+  pointer-events:none;
+  opacity:0;
+}
+.voice-orb.listening .orb-ring{
+  border-color:rgba(83,230,197,.4);
+  animation:ripple 2s infinite ease-out;
+}
+.voice-orb.speaking .orb-ring{
+  border-color:rgba(255,180,84,.5);
+  animation:ripple 1.5s infinite ease-out;
+}
+.ring-2{animation-delay:.5s!important}
+.ring-3{animation-delay:1s!important}
+@keyframes orbListen{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes orbSpeak{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes ripple{0%{transform:scale(0.85);opacity:.8}100%{transform:scale(1.4);opacity:0}}
+.voice-status{
+  font-size:13px;
+  font-weight:600;
+  color:var(--comet);
+  text-align:center;
+  margin-top:4px;
+}
+/* Transcript box */
+.live-transcript-box{
+  width:100%;
+  background:var(--void);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+  margin-top:14px;
+  max-height:170px;
+  min-height:90px;
+  overflow-y:auto;
+  font-size:13px;
+  line-height:1.5;
+}
+.transcript-placeholder{
+  color:var(--comet);
+  font-style:italic;
+  text-align:center;
+  padding:16px 0;
+}
+.transcript-bubble{
+  margin-bottom:8px;
+  padding:6px 10px;
+  border-radius:10px;
+  max-width:90%;
+  word-break:break-word;
+}
+.transcript-bubble.user{
+  background:var(--nebula-2);
+  color:var(--starlight);
+  margin-left:auto;
+  text-align:right;
+}
+.transcript-bubble.model{
+  background:rgba(167,139,250,.15);
+  border:1px solid rgba(167,139,250,.25);
+  color:var(--starlight);
+  margin-right:auto;
+}
+/* Text chat tab */
+.gemini-quick-prompts{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:10px;
+}
+.gemini-chat-log{
+  background:var(--void);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+  max-height:220px;
+  min-height:140px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.chat-msg{
+  padding:8px 12px;
+  border-radius:12px;
+  font-size:13.5px;
+  line-height:1.45;
+  max-width:85%;
+  word-break:break-word;
+}
+.chat-msg.user{
+  align-self:flex-end;
+  background:var(--lunar);
+  color:#FFFFFF;
+}
+.chat-msg.ai{
+  align-self:flex-start;
+  background:var(--nebula-2);
+  border:1px solid var(--line);
+  color:var(--starlight);
+}
+.chat-msg.ai.loading{
+  font-style:italic;
+  color:var(--comet);
+}
 </style>
 </head>
 <body>
@@ -115,14 +416,38 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
 <main>
   <header>
     <div class="brand">
-      <svg width="34" height="34" viewBox="0 0 64 64"><circle cx="32" cy="32" r="13" fill="#A78BFA"/><ellipse cx="32" cy="32" rx="26" ry="9" fill="none" stroke="#53E6C5" stroke-width="3" transform="rotate(-18 32 32)"/><circle cx="52" cy="22" r="4" fill="#FFB454"/></svg>
-      <div><h1>Orbit</h1><small>Health Tracker</small></div>
+      <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="13" fill="var(--lunar)"/><ellipse cx="32" cy="32" rx="26" ry="9" fill="none" stroke="var(--aurora)" stroke-width="3" transform="rotate(-18 32 32)"/><circle cx="52" cy="22" r="4" fill="var(--solar)"/></svg>
+      <div><h1>ORBIT</h1><small>Health Tracker</small></div>
     </div>
-    <button class="iconbtn" id="btnSettings" aria-label="Settings">⚙</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="gemini-btn" id="btnGemini" aria-label="Open Gemini Health AI" title="Talk about your health with Gemini AI">
+        <span>✨</span><span>Gemini AI</span>
+      </button>
+      <button class="iconbtn" id="btnTheme" aria-label="Toggle outdoor high-contrast theme" title="Toggle outdoor high-contrast mode">
+        <span id="themeIcon">☀️</span>
+      </button>
+      <button class="iconbtn" id="btnSettings" aria-label="Settings" title="Settings">⚙</button>
+      <button class="iconbtn" id="btnAccount" aria-label="User Account & Cloud Sync" title="User Account & Cloud Sync">
+        <span id="userAvatarSlot" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:relative">
+          <span>👤</span>
+          <span id="userCloudDot" style="display:none;position:absolute;bottom:2px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--aurora);border:1.5px solid var(--nebula)"></span>
+        </span>
+      </button>
+    </div>
   </header>
 
   <!-- TODAY -->
   <section class="screen active" id="scr-today">
+    <div class="card gemini-banner" id="geminiBanner" style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;border-color:var(--lunar);margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="gemini-badge-orb">✨</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--starlight)">Talk to Gemini AI</div>
+          <div style="font-size:12px;color:var(--comet)">Real-time voice analysis of your nutrition, calories & sleep</div>
+        </div>
+      </div>
+      <button class="btn lunar" style="width:auto;margin-top:0;padding:6px 14px;font-size:12px;pointer-events:none">Talk</button>
+    </div>
     <div class="card">
       <div class="eyebrow" id="todayDate"></div>
       <div class="dial-wrap">
@@ -144,6 +469,22 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
         <div id="protBar" style="height:100%;width:0%;border-radius:999px;background:var(--aurora);transition:width .3s"></div>
       </div>
     </div>
+    <div class="card" id="waterStrip" style="margin-top:14px;padding:12px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+        <span style="font-size:13px;color:var(--comet);display:flex;align-items:center;gap:6px">💧 <span>Hydration</span></span>
+        <span id="waterStripVal" style="font-weight:800;font-variant-numeric:tabular-nums;color:#38BDF8">0 / 2,500 ml</span>
+      </div>
+      <div style="height:7px;border-radius:999px;background:var(--void);overflow:hidden;position:relative">
+        <div id="waterBar" style="height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg, #38BDF8, #53E6C5);transition:width .35s ease"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <span id="waterPctLabel" style="font-size:11px;color:var(--comet);font-weight:600">0% of daily goal</span>
+        <div style="display:flex;gap:6px">
+          <button class="chip" id="quickWater250" style="padding:4px 9px;font-size:11px;border-color:#38BDF8;color:var(--starlight)">+250ml</button>
+          <button class="chip" id="quickWater500" style="padding:4px 9px;font-size:11px;border-color:#38BDF8;color:var(--starlight)">+500ml</button>
+        </div>
+      </div>
+    </div>
     <div class="card" id="wtStrip" style="display:none;margin-top:14px;padding:12px 16px">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:13px;color:var(--comet)">⚖️ Body weight</span>
@@ -156,11 +497,12 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
     </div>
   </section>
 
-  <!-- LOG (food + activity) -->
+  <!-- LOG (food + activity + water + weight) -->
   <section class="screen" id="scr-log">
     <div class="seg" id="logSeg">
       <button class="on" data-mode="food">🍎 Food</button>
       <button data-mode="activity">🔥 Activity</button>
+      <button data-mode="water">💧 Water</button>
       <button data-mode="weight">⚖️ Weight</button>
     </div>
 
@@ -204,6 +546,37 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
       <p class="note" id="metNote"></p>
       <label for="aDate">Date</label><input id="aDate" type="date">
       <button class="btn aurora" id="addAct">Add activity</button>
+    </div>
+
+    <div class="card" id="waterForm" style="display:none">
+      <div class="eyebrow">Log water intake</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <span style="font-size:12px;color:var(--comet);letter-spacing:.08em;text-transform:uppercase;font-weight:600">Today's total</span>
+          <div id="waterFormTodayTotal" style="font-size:22px;font-weight:800;color:#38BDF8;font-variant-numeric:tabular-nums">0 ml</div>
+        </div>
+        <div style="text-align:right">
+          <span style="font-size:12px;color:var(--comet);letter-spacing:.08em;text-transform:uppercase;font-weight:600">Daily goal</span>
+          <div id="waterFormGoal" style="font-size:15px;font-weight:700;color:var(--starlight)">2,500 ml</div>
+        </div>
+      </div>
+      <label for="wtrAmount">Amount (ml)</label>
+      <div style="display:flex;gap:8px">
+        <input id="wtrAmount" type="number" min="10" max="5000" step="50" inputmode="numeric" placeholder="250" style="flex:1">
+        <button class="btn aqua" id="addWater" style="width:auto;margin-top:0;padding:12px 20px;white-space:nowrap">Log water</button>
+      </div>
+      <div class="chips" id="waterChips">
+        <button class="chip water-chip" data-ml="200">+200 ml (Cup)</button>
+        <button class="chip water-chip" data-ml="250">+250 ml (Glass)</button>
+        <button class="chip water-chip" data-ml="500">+500 ml (Bottle)</button>
+        <button class="chip water-chip" data-ml="750">+750 ml (Flask)</button>
+        <button class="chip water-chip" data-ml="1000">+1,000 ml (Liter)</button>
+      </div>
+      <label for="wtrDate">Date</label>
+      <input id="wtrDate" type="date">
+      <hr class="sep">
+      <div class="eyebrow">Recent water logs</div>
+      <div id="waterList"></div>
     </div>
 
     <div class="card" id="wtForm" style="display:none">
@@ -252,6 +625,16 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
       <div class="legend"><span><i style="background:var(--solar)"></i>Intake</span><span><i style="background:var(--aurora)"></i>Burned</span></div>
     </div>
     <div class="card">
+      <div class="eyebrow" id="burnChartTitle">Calories burned — last 7 days</div>
+      <div id="burnChart"></div>
+      <div class="legend">
+        <span><i style="background:var(--aurora)"></i>Active burn</span>
+        <span><i style="background:var(--aurora);opacity:0.38"></i>Resting burn</span>
+        <span><i style="border-top:1.5px dashed var(--comet);width:12px;height:0;display:inline-block;border-radius:0"></i>Baseline</span>
+      </div>
+      <p class="note" id="burnChartNote" style="text-align:center;margin-top:6px"></p>
+    </div>
+    <div class="card">
       <div class="eyebrow" id="slpChartTitle">Sleep hours — last 7 days</div>
       <div id="slpChart"></div>
     </div>
@@ -264,13 +647,207 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
       <div id="wtChart"></div>
       <p class="note" id="wtChartNote" style="text-align:center"></p>
     </div>
+
+    <!-- 30-Day Weight Projection -->
+    <div class="card" id="wtProjCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="eyebrow" style="margin-bottom:0">Projected 30-day weight trend</div>
+        <span class="chip" style="font-size:10.5px;padding:3px 9px;font-weight:700;color:var(--aurora);border-color:var(--aurora)">30-day forecast</span>
+      </div>
+      <div class="kpis" id="wtProjKpis"></div>
+      <div id="wtProjChart"></div>
+      <div class="legend" style="margin-top:6px">
+        <span><i style="background:var(--starlight)"></i>Current weigh-in</span>
+        <span><i style="background:var(--aurora)"></i>Projected trajectory</span>
+      </div>
+      <p class="note" id="wtProjNote" style="text-align:center;margin-top:10px;line-height:1.45"></p>
+    </div>
+  </section>
+
+  <!-- ACCOUNT SCREEN -->
+  <section class="screen" id="scr-account">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h2 style="margin:0;font-size:18px">Orbit Account</h2>
+      <span class="chip" id="accountBadgeStatus" style="font-size:11px;padding:3px 10px;font-weight:700">Guest Mode</span>
+    </div>
+
+    <!-- Signed Out View -->
+    <div id="screenAccountSignedOut">
+      <div class="card" style="text-align:center;padding:22px 16px;background:var(--nebula)">
+        <div style="font-size:48px;margin-bottom:10px;line-height:1">🪐</div>
+        <div style="font-weight:800;font-size:17px;margin-bottom:6px">Cloud Backup & Device Sync</div>
+        <p class="note" style="margin:0 auto 18px;max-width:340px;line-height:1.5">
+          Sign in with your Google account to back up and sync your food logs, workouts, sleep cycles, and weight trends across all your devices.
+        </p>
+        <button class="btn" id="btnScreenGoogleSignIn" style="background:#FFFFFF;color:#1E293B;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,0.15);width:100%;max-width:320px;margin:0 auto">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+          Sign in with Google
+        </button>
+      </div>
+
+      <div class="card" style="background:var(--nebula-2);display:flex;align-items:flex-start;gap:12px;padding:14px;margin-bottom:14px">
+        <span style="font-size:22px;line-height:1">💾</span>
+        <div>
+          <div style="font-weight:700;font-size:13.5px;color:var(--starlight)">Local Guest Mode Active</div>
+          <div style="font-size:12px;color:var(--comet);line-height:1.45;margin-top:2px">
+            Your logs and measurements are stored in this browser. Signing in uploads and preserves all your existing logs to your private cloud storage.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signed In View -->
+    <div id="screenAccountSignedIn" style="display:none">
+      <div class="card" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--nebula-2);margin-bottom:14px">
+        <div id="screenUserAvatar" style="width:52px;height:52px;border-radius:50%;background:var(--lunar);display:grid;place-items:center;font-size:22px;font-weight:700;color:#FFFFFF;flex:none;overflow:hidden">👤</div>
+        <div style="min-width:0;flex:1">
+          <div id="screenUserName" style="font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Orbit Explorer</div>
+          <div id="screenUserEmail" style="font-size:12.5px;color:var(--comet);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">user@example.com</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+            <span class="dot" style="background:var(--aurora)"></span>
+            <span style="font-size:11.5px;font-weight:700;color:var(--aurora)" id="screenSyncStatusText">Cloud Sync Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <button class="btn lunar" id="btnScreenManualSync" style="margin-top:0;font-size:13px;font-weight:700">☁️ Sync now</button>
+        <button class="btn ghost" id="btnScreenSignOut" style="margin-top:0;font-size:13px;color:var(--danger)">Sign out</button>
+      </div>
+    </div>
+
+    <!-- Lifetime Stats Card -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="eyebrow" style="margin-bottom:10px">Cloud & Local Storage Stats</div>
+      <div class="stat-row">
+        <div class="stat"><div class="val" id="screenStatFoods">0</div><div class="lbl">meals</div></div>
+        <div class="stat"><div class="val" id="screenStatActs">0</div><div class="lbl">activities</div></div>
+        <div class="stat"><div class="val" id="screenStatDays">0</div><div class="lbl">total logs</div></div>
+      </div>
+    </div>
+
+    <!-- Data Controls -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="eyebrow" style="margin-bottom:10px">Backup & Portability</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+        <button class="btn ghost" id="btnScreenExport" style="margin-top:0;font-size:13px">📥 Export JSON</button>
+        <button class="btn ghost" id="btnScreenImport" style="margin-top:0;font-size:13px">📤 Import backup</button>
+      </div>
+      <p class="note" style="margin:0;line-height:1.4">Export your complete raw data anytime for local safekeeping.</p>
+    </div>
+
+    <!-- Privacy & Security -->
+    <div class="card" style="background:var(--nebula-2);border-style:dashed;padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🛡️</span>
+        <div style="font-weight:700;font-size:12.5px;color:var(--starlight)">Firestore Security Rules Enforced</div>
+      </div>
+      <p class="note" style="margin:0;line-height:1.45;font-size:11.5px">
+        Your cloud records are sandboxed per user account (`/users/{uid}/data/userData`). Only you have read and write permissions to your records.
+      </p>
+    </div>
   </section>
 </main>
+<!-- GEMINI HEALTH AI MODAL -->
+<div class="modal" id="geminiModal">
+  <div class="sheet" style="max-height:92vh">
+    <div class="gemini-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="gemini-sparkle-avatar">✨</div>
+        <div>
+          <h2 style="margin-bottom:1px;font-size:17px">Gemini Health AI</h2>
+          <div class="gemini-sub">Real-Time Voice Companion (gemini-3.8-live)</div>
+        </div>
+      </div>
+      <button class="iconbtn" id="closeGemini" aria-label="Close Gemini AI">✕</button>
+    </div>
+
+    <!-- Live Context Badge -->
+    <div class="gemini-context-card" id="geminiContextStrip">
+      <span class="dot-live"></span>
+      <span id="geminiContextText">Daily health metrics synced</span>
+    </div>
+
+    <!-- Mode Selector: Live Voice vs Text Chat -->
+    <div class="seg" id="geminiModeSeg" style="margin-top:12px">
+      <button class="on" data-mode="voice">🎙️ Live Voice (Live API)</button>
+      <button data-mode="chat">💬 Health Chat</button>
+    </div>
+
+    <!-- VOICE TAB -->
+    <div id="geminiVoiceView">
+      <div class="voice-stage">
+        <!-- Interactive Orb visualizer -->
+        <div class="orb-container">
+          <div class="voice-orb" id="voiceOrb">
+            <div class="orb-core">✨</div>
+            <div class="orb-ring ring-1"></div>
+            <div class="orb-ring ring-2"></div>
+            <div class="orb-ring ring-3"></div>
+          </div>
+        </div>
+        
+        <div class="voice-status" id="voiceStatusText">Tap Start Voice Call to talk directly with Gemini</div>
+        
+        <!-- Action buttons -->
+        <div style="display:flex;gap:10px;width:100%;max-width:320px;margin:12px auto 6px">
+          <button class="btn lunar" id="btnStartVoice" style="margin-top:0">🎙️ Start Voice Call</button>
+          <button class="btn ghost" id="btnEndVoice" style="display:none;margin-top:0;color:var(--danger);border-color:var(--danger)">End Call</button>
+        </div>
+
+        <!-- Live transcript box -->
+        <div class="live-transcript-box" id="liveTranscriptBox">
+          <div class="transcript-placeholder" id="transcriptPlaceholder">Live voice conversation with Gemini will appear here in real-time...</div>
+          <div id="liveConversationLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEXT CHAT TAB -->
+    <div id="geminiChatView" style="display:none">
+      <div class="gemini-quick-prompts">
+        <button class="chip gemini-prompt-chip" data-q="Review my calories, burned kcal, and energy balance today.">⚡ Energy balance check</button>
+        <button class="chip gemini-prompt-chip" data-q="Did I reach my daily protein target and what food should I add?">🥚 Protein check</button>
+        <button class="chip gemini-prompt-chip" data-q="How can I optimize my sleep and recovery tonight?">🌙 Sleep tips</button>
+        <button class="chip gemini-prompt-chip" data-q="Suggest a healthy, nutritious dinner under 500 kcal.">🥗 Dinner idea</button>
+      </div>
+
+      <div class="gemini-chat-log" id="geminiChatLog">
+        <div class="chat-msg ai">
+          Hello Captain! I'm your Orbit Health companion. Ask me anything about your nutrition, calories, workouts, or sleep patterns!
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input id="geminiInput" placeholder="Ask about nutrition, workout, or recovery..." autocomplete="off" style="flex:1">
+        <button class="btn lunar" style="width:auto;margin-top:0;padding:12px 18px" id="geminiSendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- SETTINGS MODAL -->
 <div class="modal" id="settingsModal">
   <div class="sheet">
     <h2>Mission settings <button class="iconbtn" id="closeSettings" aria-label="Close">✕</button></h2>
+    <!-- Account & Cloud Sync banner in settings -->
+    <div class="card" style="margin-bottom:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--nebula-2)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="setAccountAvatar" style="width:32px;height:32px;border-radius:50%;background:var(--nebula);display:grid;place-items:center;font-size:15px;overflow:hidden">👤</div>
+        <div>
+          <div id="setAccountName" style="font-weight:600;font-size:13px">Guest Account</div>
+          <div id="setAccountStatus" style="font-size:11px;color:var(--comet)">Local device only</div>
+        </div>
+      </div>
+      <button class="btn ghost" id="btnSettingsAccount" style="width:auto;margin-top:0;padding:6px 12px;font-size:12px">Manage</button>
+    </div>
+
+    <label>Display mode</label>
+    <div class="seg" id="themeSeg">
+      <button class="on" data-theme="space">🪐 Space</button>
+      <button data-theme="outdoor">☀️ Outdoor High-Contrast</button>
+    </div>
+    <p class="note" style="margin-top:-6px;margin-bottom:12px">Optimized for bright sunlight and outdoor screen visibility.</p>
     <label for="setGoal">Daily calorie goal (kcal)</label>
     <input id="setGoal" type="number" min="800" inputmode="numeric">
     <label for="setWeight">Body weight (kg) — used for activity burn</label>
@@ -280,6 +857,8 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
     <p class="note">Added automatically to every day's calories burned. Set 0 to turn off.</p>
     <label for="setProt">Protein goal (g/day) — 0 = auto (1.4 g × kg)</label>
     <input id="setProt" type="number" min="0" max="400" inputmode="numeric">
+    <label for="setWater">Daily hydration goal (ml)</label>
+    <input id="setWater" type="number" min="500" max="8000" step="100" inputmode="numeric" placeholder="2500">
     <label for="setSleep">Sleep goal (hours)</label>
     <input id="setSleep" type="number" min="4" max="14" step="0.5" inputmode="decimal">
     <button class="btn lunar" id="saveSettings">Save settings</button>
@@ -292,34 +871,140 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
   </div>
 </div>
 
+<!-- USER ACCOUNT & CLOUD SYNC MODAL -->
+<div class="modal" id="accountModal">
+  <div class="sheet">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h2>ORBIT Account</h2>
+      <button class="iconbtn" id="closeAccount" aria-label="Close Account modal">✕</button>
+    </div>
+
+    <!-- Signed Out State -->
+    <div id="accountSignedOutView">
+      <div style="text-align:center;padding:12px 6px">
+        <div style="font-size:42px;margin-bottom:8px">🪐</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:4px">Cloud Sync & Persistence</div>
+        <p class="note" style="margin-bottom:18px;line-height:1.45">
+          Sign in with your Google account to back up and sync your food logs, workouts, sleep cycles, and weight trends across all your devices.
+        </p>
+        <button class="btn" id="btnGoogleSignIn" style="background:#FFFFFF;color:#1E293B;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+          Sign in with Google
+        </button>
+      </div>
+      <div class="card" style="margin-top:14px;background:var(--nebula-2)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">💾</span>
+          <div>
+            <div style="font-weight:600;font-size:13px">Local Guest Mode Active</div>
+            <div style="font-size:11.5px;color:var(--comet)">Your data is currently stored locally in this browser. Signing in will upload and preserve all your entries safely.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signed In State -->
+    <div id="accountSignedInView" style="display:none">
+      <div class="card" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--nebula-2)">
+        <div id="accountUserAvatar" style="width:48px;height:48px;border-radius:50%;background:var(--lunar);display:grid;place-items:center;font-size:20px;font-weight:700;color:#FFFFFF;flex:none;overflow:hidden">👤</div>
+        <div style="min-width:0;flex:1">
+          <div id="accountUserName" style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Orbit Explorer</div>
+          <div id="accountUserEmail" style="font-size:12.5px;color:var(--comet);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">user@example.com</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+            <span class="dot" style="background:var(--aurora)"></span>
+            <span style="font-size:11px;font-weight:600;color:var(--aurora)" id="accountSyncStatusText">Cloud Sync Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <button class="btn ghost" id="btnManualSync" style="margin-top:0;font-size:13px">☁️ Sync now</button>
+        <button class="btn ghost" id="btnSignOut" style="margin-top:0;font-size:13px;color:var(--danger)">Sign out</button>
+      </div>
+
+      <div class="eyebrow">Cloud Account Stats</div>
+      <div class="stat-row" style="margin-bottom:14px">
+        <div class="stat"><div class="val" id="accStatFoods">0</div><div class="lbl">meals</div></div>
+        <div class="stat"><div class="val" id="accStatActs">0</div><div class="lbl">activities</div></div>
+        <div class="stat"><div class="val" id="accStatDays">0</div><div class="lbl">total logs</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <nav>
   <button class="on" data-scr="today"><span class="ic">🪐</span>Today</button>
   <button data-scr="log"><span class="ic">🛰️</span>Log</button>
   <button data-scr="sleep"><span class="ic">🌙</span>Sleep</button>
   <button data-scr="reports"><span class="ic">✨</span>Reports</button>
+  <button data-scr="account"><span class="ic">👤</span>Account</button>
 </nav>
 <div class="toast" id="toast"></div>
 
-<script>
-"use strict";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, getDocFromServer } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+/* ============ Firebase Auth & Cloud Sync ============ */
+const OperationType = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  LIST: 'list',
+  GET: 'get',
+  WRITE: 'write',
+};
+
+let auth = null;
+let db = null;
+let currentUser = null;
+let isCloudSyncing = false;
+
+function handleFirestoreError(error, operationType, path) {
+  const errInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
+      isAnonymous: auth?.currentUser?.isAnonymous,
+      tenantId: auth?.currentUser?.tenantId,
+      providerInfo: auth?.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || []
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
 /* ============ data layer ============ */
 const KEY = "orbit-data-v1";
-const DEFAULTS = { settings:{goal:2000, weight:70, sleepGoal:8, baseline:1500, proteinGoal:0}, foods:[], activities:[], sleeps:[], weights:[], myFoods:[] };
+const DEFAULTS = { settings:{goal:2000, weight:70, sleepGoal:8, baseline:1500, proteinGoal:0, waterGoal:2500, theme:"space"}, foods:[], activities:[], sleeps:[], weights:[], waters:[], myFoods:[] };
 let DB = load();
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
     if(!raw) return structuredClone(DEFAULTS);
     const d = JSON.parse(raw);
-    const db = { ...structuredClone(DEFAULTS), ...d, settings:{...DEFAULTS.settings, ...(d.settings||{})} };
+    const database = { ...structuredClone(DEFAULTS), ...d, settings:{...DEFAULTS.settings, ...(d.settings||{})}, waters: Array.isArray(d?.waters)?d.waters:[] };
     /* one-time seed of the personal dictionary from existing log history */
-    if(!db.myFoods.length && db.foods.length){
-      [...db.foods].sort((a,b)=>a.date.localeCompare(b.date)).forEach(f=>_remember(db.myFoods, f.name, f.cal, f.date, f.prot!=null?f.prot:null));
+    if(!database.myFoods.length && database.foods.length){
+      [...database.foods].sort((a,b)=>a.date.localeCompare(b.date)).forEach(f=>_remember(database.myFoods, f.name, f.cal, f.date, f.prot!=null?f.prot:null));
     }
-    return db;
+    return database;
   }catch(e){ return structuredClone(DEFAULTS); }
 }
-function save(){ localStorage.setItem(KEY, JSON.stringify(DB)); }
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(DB));
+  if(currentUser && db){
+    syncUserDataToCloud(currentUser);
+  }
+}
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
 /* local-timezone date helpers (never toISOString for dates) */
@@ -442,7 +1127,8 @@ function dayTotals(dateStr){
   const kcalAct = DB.activities.filter(a=>a.date===dateStr).reduce((s,a)=>s+a.cal,0);
   const kcalOut = kcalAct + (DB.settings.baseline||0); // resting burn happens every day
   const slp = DB.sleeps.find(s=>s.date===dateStr);
-  return { kcalIn, kcalAct, kcalOut, protein, sleepMin: slp ? slp.minutes : null };
+  const water = (DB.waters||[]).filter(w=>w.date===dateStr).reduce((s,w)=>s+w.ml,0);
+  return { kcalIn, kcalAct, kcalOut, protein, water, sleepMin: slp ? slp.minutes : null };
 }
 function rangeReport(days){
   const dates = lastNDates(days);
@@ -458,14 +1144,23 @@ function rangeReport(days){
 }
 
 /* ============ UI: navigation ============ */
-const screens = ["today","log","sleep","reports"];
+const screens = ["today","log","sleep","reports","account"];
 document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>show(b.dataset.scr)));
 function show(name){
-  screens.forEach(s=>document.getElementById("scr-"+s).classList.toggle("active", s===name));
+  screens.forEach(s=>{
+    const el = document.getElementById("scr-"+s);
+    if(el) el.classList.toggle("active", s===name);
+  });
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b.dataset.scr===name));
   if(name==="today") renderToday();
   if(name==="sleep") renderSleepList();
   if(name==="reports") renderReports();
+  if(name==="account") renderAccountScreen();
+}
+
+function renderAccountScreen(){
+  updateUserAccountUI(currentUser);
+  updateAccountStats();
 }
 
 /* ============ starfield ============ */
@@ -486,17 +1181,17 @@ function renderDial(kcalIn,kcalOut,goal){
   const netTxt = (net>0?"+":"")+net;
   document.getElementById("dial").innerHTML = `
   <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Balance ${netTxt} kcal; eaten ${kcalIn} of ${goal}">
-    <ellipse cx="110" cy="110" rx="96" ry="34" fill="none" stroke="#262E55" stroke-width="1.5" transform="rotate(-22 110 110)"/>
-    <circle cx="110" cy="110" r="${R}" fill="none" stroke="#262E55" stroke-width="10"/>
+    <ellipse cx="110" cy="110" rx="96" ry="34" fill="none" stroke="var(--line)" stroke-width="1.5" transform="rotate(-22 110 110)"/>
+    <circle cx="110" cy="110" r="${R}" fill="none" stroke="var(--line)" stroke-width="10"/>
     <circle cx="110" cy="110" r="${R}" fill="none" stroke="${overAte?'var(--danger)':'var(--solar)'}" stroke-width="10"
       stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
       transform="rotate(-90 110 110)"/>
-    <circle cx="110" cy="110" r="46" fill="#1B2244"/>
-    <circle cx="96" cy="98" r="46" fill="rgba(167,139,250,.10)"/>
+    <circle cx="110" cy="110" r="46" fill="var(--nebula-2)"/>
+    <circle cx="96" cy="98" r="46" fill="var(--dial-glow)"/>
     <circle cx="${110+96*Math.cos(-0.38)}" cy="${110+34*Math.sin(-0.38)+0}" r="7" fill="var(--solar)" transform="rotate(-22 110 110)"/>
     <circle cx="${110-96*Math.cos(-0.2)}" cy="${110-34*Math.sin(-0.2)}" r="5" fill="var(--aurora)" transform="rotate(-22 110 110)"/>
-    <text x="110" y="105" text-anchor="middle" font-size="28" font-weight="800" fill="${net>0?'var(--danger)':'#E8EBFA'}" font-family="system-ui">${netTxt}</text>
-    <text x="110" y="126" text-anchor="middle" font-size="10.5" letter-spacing="1.5" fill="#8B93C4" font-family="system-ui">BALANCE · ATE ${kcalIn}/${goal}</text>
+    <text x="110" y="105" text-anchor="middle" font-size="28" font-weight="800" fill="${net>0?'var(--danger)':'var(--starlight)'}" font-family="system-ui">${netTxt}</text>
+    <text x="110" y="126" text-anchor="middle" font-size="10.5" letter-spacing="1.5" fill="var(--comet)" font-family="system-ui">BALANCE · ATE ${kcalIn}/${goal}</text>
   </svg>`;
 }
 
@@ -513,6 +1208,15 @@ function renderToday(){
   const pt=proteinTarget(), pv=dayTotals(t).protein;
   document.getElementById("protStripVal").innerHTML = `${pv} / ${pt} g <span style="color:var(--comet);font-size:12px">${DB.settings.proteinGoal>0?"":"(1.4 g/kg)"}</span>`;
   document.getElementById("protBar").style.width = Math.min(100,(pt?pv/pt*100:0)).toFixed(0)+"%";
+  /* hydration strip */
+  const wToday = dayTotals(t).water, wGoal = DB.settings.waterGoal || 2500;
+  const wPct = wGoal > 0 ? Math.round(wToday / wGoal * 100) : 0;
+  const wStrip = document.getElementById("waterStripVal");
+  if(wStrip) wStrip.textContent = `${wToday.toLocaleString()} / ${wGoal.toLocaleString()} ml`;
+  const wBar = document.getElementById("waterBar");
+  if(wBar) wBar.style.width = Math.min(100, (wGoal ? wToday / wGoal * 100 : 0)).toFixed(0) + "%";
+  const wPctLabel = document.getElementById("waterPctLabel");
+  if(wPctLabel) wPctLabel.textContent = `${wPct}% of daily goal`;
   /* weight strip: latest + change since first weigh-in */
   const ws = sortedWeights(), strip = document.getElementById("wtStrip");
   if(ws.length){
@@ -525,6 +1229,7 @@ function renderToday(){
   const items = [
     ...DB.foods.filter(f=>f.date===t).map(f=>({id:f.id,kind:"food",cls:"in",name:f.name,meta:f.meal+(f.prot?` · ${f.prot}g protein`:""),amt:"+"+f.cal+" kcal"})),
     ...DB.activities.filter(a=>a.date===t).map(a=>({id:a.id,kind:"activity",cls:"out",name:a.name,meta:a.minutes+" min",amt:"−"+a.cal+" kcal"})),
+    ...(DB.waters||[]).filter(w=>w.date===t).map(w=>({id:w.id,kind:"water",cls:"h2o",name:"Water",meta:(w.time?`${w.time} · `:"")+"Hydration",amt:"+"+w.ml+" ml"})),
     ...DB.sleeps.filter(s=>s.date===t).map(s=>({id:s.id,kind:"sleep",cls:"zz",name:"Sleep",meta:s.bed+" → "+s.wake+" · "+"★".repeat(s.quality),amt:fmtH(s.minutes)}))
   ];
   list.innerHTML = items.length ? items.map(i=>`
@@ -544,19 +1249,22 @@ document.getElementById("todayList").addEventListener("click", e=>{
 function deleteEntry(kind,id){
   if(kind==="food") DB.foods = DB.foods.filter(x=>x.id!==id);
   if(kind==="activity") DB.activities = DB.activities.filter(x=>x.id!==id);
+  if(kind==="water") DB.waters = (DB.waters||[]).filter(x=>x.id!==id);
   if(kind==="sleep") DB.sleeps = DB.sleeps.filter(x=>x.id!==id);
   if(kind==="weight") DB.weights = DB.weights.filter(x=>x.id!==id);
   save(); toast("Entry deleted");
 }
 
-/* ============ Log: food & activity ============ */
+/* ============ Log: food, activity, water & weight ============ */
 document.getElementById("logSeg").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b) return;
   document.querySelectorAll("#logSeg button").forEach(x=>x.classList.toggle("on",x===b));
   document.getElementById("foodForm").style.display = b.dataset.mode==="food"?"":"none";
   document.getElementById("actForm").style.display = b.dataset.mode==="activity"?"":"none";
+  document.getElementById("waterForm").style.display = b.dataset.mode==="water"?"":"none";
   document.getElementById("wtForm").style.display = b.dataset.mode==="weight"?"":"none";
   if(b.dataset.mode==="weight") renderWtList();
+  if(b.dataset.mode==="water") renderWaterList();
 });
 /* suggestion chips: quick-adds when empty; personal ★ + database matches while typing */
 function renderFoodChips(query){
@@ -658,6 +1366,67 @@ document.getElementById("addAct").addEventListener("click", ()=>{
   toast("Activity logged 🔥"); show("today");
 });
 
+/* ============ Water tracking ============ */
+function renderWaterList(){
+  const list=document.getElementById("waterList");
+  const t=todayStr();
+  const todayTotal=(DB.waters||[]).filter(w=>w.date===t).reduce((s,w)=>s+w.ml,0);
+  const wGoal=DB.settings.waterGoal || 2500;
+  const totalEl=document.getElementById("waterFormTodayTotal");
+  const goalEl=document.getElementById("waterFormGoal");
+  if(totalEl) totalEl.textContent = `${todayTotal.toLocaleString()} ml`;
+  if(goalEl) goalEl.textContent = `${wGoal.toLocaleString()} ml`;
+
+  const ws=[...(DB.waters||[])].sort((a,b)=>b.date.localeCompare(a.date) || (b.time||"").localeCompare(a.time||"")).slice(0,8);
+  list.innerHTML = ws.length ? ws.map(w=>`
+    <div class="entry" data-id="${w.id}" data-kind="water">
+      <span class="dot h2o"></span>
+      <div class="info"><div class="name">${w.ml} ml water</div><div class="meta">${niceDate(w.date)}${w.time?` · ${w.time}`:""}</div></div>
+      <span class="amt">+${w.ml} ml</span>
+      <button class="del" aria-label="Delete water entry">✕</button>
+    </div>
+  `).join("") : `<div class="empty">No water logged yet today. Stay hydrated, Captain! 💧</div>`;
+}
+function logWater(amount, date = todayStr()){
+  const ml=parseInt(amount, 10);
+  if(!ml||ml<10||ml>10000) return toast("Enter valid water amount (10–10,000 ml)");
+  const now=new Date();
+  const time=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  if(!DB.waters) DB.waters=[];
+  DB.waters.push({id:uid(),date,ml,time});
+  save();
+  toast(`Logged ${ml} ml water 💧`);
+  renderToday();
+  renderWaterList();
+}
+document.getElementById("addWater").addEventListener("click", ()=>{
+  const input=document.getElementById("wtrAmount");
+  const dInput=document.getElementById("wtrDate");
+  const ml=input.value;
+  const date=dInput.value || todayStr();
+  logWater(ml, date);
+  input.value="";
+  show("today");
+});
+document.getElementById("waterChips").addEventListener("click", e=>{
+  const chip=e.target.closest(".water-chip");
+  if(!chip) return;
+  const ml=chip.dataset.ml;
+  const dInput=document.getElementById("wtrDate");
+  const date=dInput.value || todayStr();
+  logWater(ml, date);
+  show("today");
+});
+document.getElementById("waterList").addEventListener("click", e=>{
+  const btn=e.target.closest(".del"); if(!btn) return;
+  const row=btn.closest(".entry");
+  deleteEntry("water", row.dataset.id);
+  renderWaterList();
+  renderToday();
+});
+document.getElementById("quickWater250").addEventListener("click", ()=>logWater(250));
+document.getElementById("quickWater500").addEventListener("click", ()=>logWater(500));
+
 /* ============ Weight tracking ============ */
 function sortedWeights(){ return [...DB.weights].sort((a,b)=>a.date.localeCompare(b.date)); }
 document.getElementById("addWt").addEventListener("click", ()=>{
@@ -737,6 +1506,8 @@ function renderReports(){
   const rep=rangeReport(repDays);
   const label=repDays===7?"7 days":"30 days";
   document.getElementById("calChartTitle").textContent=`Calories — last ${label}`;
+  const burnTitle = document.getElementById("burnChartTitle");
+  if(burnTitle) burnTitle.textContent=`Calories burned — last ${label}`;
   document.getElementById("slpChartTitle").textContent=`Sleep hours — last ${label}`;
   const bal=rep.balance, balTxt=(bal>0?"+":"")+bal.toLocaleString();
   document.getElementById("repKpis").innerHTML=`
@@ -745,11 +1516,13 @@ function renderReports(){
     <div class="kpi"><div class="v" style="color:${bal>0?'var(--danger)':'var(--aurora)'}">${balTxt}</div><div class="l">${bal>0?"surplus":"deficit"} · ≈${Math.abs(bal/7700).toFixed(1)} kg</div></div>
     <div class="kpi"><div class="v" style="color:var(--lunar)">${rep.avgSleep!=null?fmtH(Math.round(rep.avgSleep)):"—"}</div><div class="l">avg sleep (${rep.nightsLogged} nights)</div></div>`;
   drawCalChart(rep.rows);
+  drawBurnChart(rep.rows);
   drawSleepChart(rep.rows);
   document.getElementById("protChartTitle").textContent=`Protein — last ${label}`;
   drawProtChart(rep.rows);
   document.getElementById("wtChartTitle").textContent=`Weight trend — last ${label}`;
   drawWeightChart(repDays);
+  drawWeightProjection(repDays);
 }
 function drawProtChart(rows){
   const W=480,H=150,pad=6,bw=(W-pad*2)/rows.length;
@@ -762,13 +1535,13 @@ function drawProtChart(rows){
     if(r.protein>0){
       bars+=`<rect x="${(x+bw*0.2).toFixed(1)}" y="${y(r.protein).toFixed(1)}" width="${(bw*0.6).toFixed(1)}" height="${(H-18-y(r.protein)).toFixed(1)}" rx="3" fill="var(--aurora)"/>`;
     }
-    if(rows.length<=7) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="#8B93C4">${r.date.slice(8)}</text>`;
-    else if(i%5===0) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="#8B93C4">${r.date.slice(8)}</text>`;
+    if(rows.length<=7) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)}</text>`;
+    else if(i%5===0) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)}</text>`;
   });
   const gy=y(target);
   document.getElementById("protChart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
-    <line x1="${pad}" x2="${W-pad}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="#8B93C4" stroke-dasharray="4 4" stroke-width="1"/>
-    <text x="${W-pad}" y="${(gy-4).toFixed(1)}" text-anchor="end" font-size="10" fill="#8B93C4">target ${target}g</text>
+    <line x1="${pad}" x2="${W-pad}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="var(--comet)" stroke-dasharray="4 4" stroke-width="1"/>
+    <text x="${W-pad}" y="${(gy-4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--comet)">target ${target}g</text>
     ${bars}</svg>`;
 }
 function drawWeightChart(days){
@@ -788,15 +1561,161 @@ function drawWeightChart(days){
   const x=d=>padX+(dates.indexOf(d)/(days-1))*(W-padX*2);
   const y=v=>padT+(1-(v-lo)/(hi-lo))*(H-padT-padB);
   const pts=inRange.map(w=>`${x(w.date).toFixed(1)},${y(w.kg).toFixed(1)}`);
-  const dots=inRange.map(w=>`<circle cx="${x(w.date).toFixed(1)}" cy="${y(w.kg).toFixed(1)}" r="4.5" fill="#E8EBFA"/><text x="${x(w.date).toFixed(1)}" y="${(y(w.kg)-9).toFixed(1)}" text-anchor="middle" font-size="10" fill="#8B93C4">${w.kg.toFixed(1)}</text>`).join("");
-  const labels=inRange.map(w=>`<text x="${x(w.date).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="#8B93C4">${w.date.slice(8)}/${w.date.slice(5,7)}</text>`).join("");
+  const dots=inRange.map(w=>`<circle cx="${x(w.date).toFixed(1)}" cy="${y(w.kg).toFixed(1)}" r="4.5" fill="var(--starlight)" stroke="var(--nebula-2)" stroke-width="1.5"/><text x="${x(w.date).toFixed(1)}" y="${(y(w.kg)-9).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--comet)">${w.kg.toFixed(1)}</text>`).join("");
+  const labels=inRange.map(w=>`<text x="${x(w.date).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${w.date.slice(8)}/${w.date.slice(5,7)}</text>`).join("");
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
-    ${pts.length>1?`<polyline points="${pts.join(" ")}" fill="none" stroke="#E8EBFA" stroke-width="2" stroke-linejoin="round" opacity="0.85"/>`:""}
+    ${pts.length>1?`<polyline points="${pts.join(" ")}" fill="none" stroke="var(--starlight)" stroke-width="2" stroke-linejoin="round" opacity="0.85"/>`:""}
     ${dots}${labels}</svg>`;
   const d=inRange.at(-1).kg-inRange[0].kg;
   note.textContent = inRange.length>1
     ? `${d<0?"▼ Lost":d>0?"▲ Gained":"•"} ${Math.abs(d).toFixed(1)} kg across ${inRange.length} weigh-ins in this period.`
     : `One weigh-in in this period: ${inRange[0].kg.toFixed(1)} kg. Log another to see the trend.`;
+}
+
+/* ============ 30-Day Weight Projection ============ */
+function calculateWeightRateOfChange(days){
+  const all = sortedWeights();
+  const rangeDates = lastNDates(days);
+  const inRange = all.filter(w=>rangeDates.includes(w.date));
+  const pool = inRange.length >= 2 ? inRange : all;
+
+  if(pool.length >= 2){
+    const t0 = new Date(pool[0].date + "T12:00").getTime();
+    const pts = pool.map(w => {
+      const d = (new Date(w.date + "T12:00").getTime() - t0) / 86400000;
+      return { x: d, y: w.kg };
+    });
+    const n = pts.length;
+    const xSpan = pts[n-1].x - pts[0].x;
+    if(xSpan > 0){
+      const sumX = pts.reduce((s,p)=>s+p.x, 0);
+      const sumY = pts.reduce((s,p)=>s+p.y, 0);
+      const meanX = sumX / n;
+      const meanY = sumY / n;
+      const num = pts.reduce((s,p)=>s + (p.x - meanX)*(p.y - meanY), 0);
+      const den = pts.reduce((s,p)=>s + Math.pow(p.x - meanX, 2), 0);
+      const slope = den !== 0 ? (num / den) : ((pts[n-1].y - pts[0].y) / xSpan);
+      return {
+        type: "weigh-ins",
+        ratePerDay: slope,
+        ratePerWeek: slope * 7,
+        currentKg: pool[pool.length-1].kg,
+        weighInCount: pool.length,
+        spanDays: Math.round(xSpan)
+      };
+    }
+  }
+
+  // Fallback: estimate from caloric balance if weigh-in history has fewer than 2 dates
+  const currentKg = all.length ? all[all.length-1].kg : (DB.settings.weight || 70);
+  const rep = rangeReport(days);
+  if(rep.daysLogged >= 1){
+    const avgDailyBal = rep.balance / rep.daysLogged;
+    const slope = avgDailyBal / 7700;
+    return {
+      type: "calorie-balance",
+      ratePerDay: slope,
+      ratePerWeek: slope * 7,
+      currentKg,
+      avgDailyBal: Math.round(avgDailyBal),
+      daysLogged: rep.daysLogged
+    };
+  }
+
+  return {
+    type: "none",
+    ratePerDay: 0,
+    ratePerWeek: 0,
+    currentKg
+  };
+}
+
+function drawWeightProjection(days){
+  const calc = calculateWeightRateOfChange(days);
+  const kpisEl = document.getElementById("wtProjKpis");
+  const chartEl = document.getElementById("wtProjChart");
+  const noteEl = document.getElementById("wtProjNote");
+  if(!kpisEl || !chartEl || !noteEl) return;
+
+  const currentKg = calc.currentKg;
+  const proj30Delta = calc.ratePerDay * 30;
+  const proj30Kg = Math.max(20, Math.round((currentKg + proj30Delta) * 10) / 10);
+  const deltaTxt = (proj30Delta > 0 ? "+" : "") + proj30Delta.toFixed(1) + " kg";
+  const rateWkTxt = (calc.ratePerWeek > 0 ? "+" : "") + calc.ratePerWeek.toFixed(2) + " kg/wk";
+  const rateDayTxt = (calc.ratePerDay > 0 ? "+" : "") + (calc.ratePerDay * 1000).toFixed(0) + " g/day";
+
+  const changeColor = proj30Delta < -0.15 ? "var(--aurora)" : (proj30Delta > 0.15 ? "var(--solar)" : "var(--starlight)");
+
+  kpisEl.innerHTML = `
+    <div class="kpi"><div class="v" style="color:var(--starlight)">${currentKg.toFixed(1)} kg</div><div class="l">Current weight</div></div>
+    <div class="kpi"><div class="v" style="color:${changeColor}">${rateWkTxt}</div><div class="l">Current rate (${rateDayTxt})</div></div>
+    <div class="kpi"><div class="v" style="color:${changeColor}">${proj30Kg.toFixed(1)} kg</div><div class="l">Projected in 30 days</div></div>
+    <div class="kpi"><div class="v" style="color:${changeColor}">${deltaTxt}</div><div class="l">30-day forecast change</div></div>
+  `;
+
+  // Draw 30-day forecast SVG graph
+  const W = 480, H = 160, padX = 36, padT = 24, padB = 26;
+  const d0 = currentKg;
+  const d10 = currentKg + calc.ratePerDay * 10;
+  const d20 = currentKg + calc.ratePerDay * 20;
+  const d30 = proj30Kg;
+  const kgs = [d0, d10, d20, d30];
+
+  let lo = Math.min(...kgs), hi = Math.max(...kgs);
+  if(hi - lo < 0.8){ lo -= 0.6; hi += 0.6; } else { const m = (hi - lo) * 0.22; lo -= m; hi += m; }
+
+  const x = day => padX + (day / 30) * (W - padX * 2);
+  const y = v => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
+
+  const pts = [
+    { day: 0, label: "Today", kg: d0 },
+    { day: 10, label: "+10d", kg: d10 },
+    { day: 20, label: "+20d", kg: d20 },
+    { day: 30, label: "+30d", kg: d30 }
+  ];
+
+  const polyPts = pts.map(p => `${x(p.day).toFixed(1)},${y(p.kg).toFixed(1)}`).join(" ");
+  const areaPts = `${x(0).toFixed(1)},${H-padB} ${polyPts} ${x(30).toFixed(1)},${H-padB}`;
+
+  const milestonesSvg = pts.map(p => {
+    const isStart = p.day === 0;
+    const isEnd = p.day === 30;
+    const cx = x(p.day).toFixed(1);
+    const cy = y(p.kg).toFixed(1);
+    const dotFill = isStart ? "var(--starlight)" : (isEnd ? changeColor : "var(--comet)");
+    const r = isStart || isEnd ? "5.5" : "3.5";
+    return `
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${dotFill}" stroke="var(--nebula)" stroke-width="2"/>
+      <text x="${cx}" y="${(cy - 9).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${isEnd ? changeColor : 'var(--starlight)'}">${p.kg.toFixed(1)}</text>
+      <text x="${cx}" y="${H - 6}" text-anchor="middle" font-size="10" fill="var(--comet)">${p.label}</text>
+    `;
+  }).join("");
+
+  const baseLineY = y(d0).toFixed(1);
+
+  chartEl.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="30-day projected weight graph from ${d0.toFixed(1)}kg to ${d30.toFixed(1)}kg">
+      <defs>
+        <linearGradient id="projGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="${changeColor}" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="${changeColor}" stop-opacity="0.0"/>
+        </linearGradient>
+      </defs>
+      <line x1="${padX}" x2="${W-padX}" y1="${baseLineY}" y2="${baseLineY}" stroke="var(--line)" stroke-dasharray="3 3" stroke-width="1"/>
+      <polygon points="${areaPts}" fill="url(#projGrad)"/>
+      <polyline points="${polyPts}" fill="none" stroke="${changeColor}" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
+      ${milestonesSvg}
+    </svg>
+  `;
+
+  if(calc.type === "weigh-ins"){
+    const dirTxt = calc.ratePerWeek < -0.05 ? "losing weight" : (calc.ratePerWeek > 0.05 ? "gaining weight" : "maintaining weight");
+    noteEl.textContent = `Based on your weigh-in pace across ${calc.weighInCount} entries (${calc.spanDays} days), you are ${dirTxt} at ${Math.abs(calc.ratePerWeek).toFixed(2)} kg/week. If this pace continues, your projected weight in 30 days is ${proj30Kg.toFixed(1)} kg (${deltaTxt}).`;
+  } else if(calc.type === "calorie-balance"){
+    noteEl.textContent = `Based on your logged daily calorie balance (average ${calc.avgDailyBal > 0 ? "+" : ""}${calc.avgDailyBal} kcal/day across ${calc.daysLogged} logged days), your estimated 30-day trajectory projects to ${proj30Kg.toFixed(1)} kg (${deltaTxt}). Log periodic weigh-ins in the Log tab to ground this in empirical measurements.`;
+  } else {
+    noteEl.textContent = `Log weigh-ins in the Log tab or track meals to compute your personalized 30-day projected weight trajectory.`;
+  }
 }
 function drawCalChart(rows){
   const W=480,H=180,pad=6,bw=(W-pad*2)/rows.length;
@@ -807,14 +1726,61 @@ function drawCalChart(rows){
     const x=pad+i*bw;
     bars+=`<rect x="${(x+bw*0.14).toFixed(1)}" y="${y(r.kcalIn).toFixed(1)}" width="${(bw*0.32).toFixed(1)}" height="${(H-18-y(r.kcalIn)).toFixed(1)}" rx="2.5" fill="var(--solar)"/>`;
     bars+=`<rect x="${(x+bw*0.54).toFixed(1)}" y="${y(r.kcalOut).toFixed(1)}" width="${(bw*0.32).toFixed(1)}" height="${(H-18-y(r.kcalOut)).toFixed(1)}" rx="2.5" fill="var(--aurora)"/>`;
-    if(rows.length<=7) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="#8B93C4">${r.date.slice(8)} ${["Su","Mo","Tu","We","Th","Fr","Sa"][new Date(r.date+"T12:00").getDay()]}</text>`;
-    else if(i%5===0) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="#8B93C4">${r.date.slice(8)}</text>`;
+    if(rows.length<=7) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)} ${["Su","Mo","Tu","We","Th","Fr","Sa"][new Date(r.date+"T12:00").getDay()]}</text>`;
+    else if(i%5===0) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)}</text>`;
   });
   const gy=y(DB.settings.goal);
   document.getElementById("calChart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
-    <line x1="${pad}" x2="${W-pad}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="#8B93C4" stroke-dasharray="4 4" stroke-width="1"/>
-    <text x="${W-pad}" y="${(gy-4).toFixed(1)}" text-anchor="end" font-size="10" fill="#8B93C4">goal ${DB.settings.goal}</text>
+    <line x1="${pad}" x2="${W-pad}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="var(--comet)" stroke-dasharray="4 4" stroke-width="1"/>
+    <text x="${W-pad}" y="${(gy-4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--comet)">goal ${DB.settings.goal}</text>
     ${bars}</svg>`;
+}
+function drawBurnChart(rows){
+  const el = document.getElementById("burnChart");
+  if(!el) return;
+  const W=480, H=180, pad=6, bw=(W-pad*2)/rows.length;
+  const baseline = DB.settings.baseline || 1500;
+  const max = Math.max(baseline * 1.15, ...rows.map(r=>r.kcalOut), 1);
+  const y = v => H-18-(v/max)*(H-36);
+  let bars = "";
+  rows.forEach((r,i)=>{
+    const x = pad + i * bw;
+    const barW = Math.max(4, bw * 0.58);
+    const barX = x + (bw - barW) / 2;
+    const baseVal = Math.min(baseline, r.kcalOut);
+    const baseH = Math.max(0, H - 18 - y(baseVal));
+    const actH = Math.max(0, y(baseVal) - y(r.kcalOut));
+
+    // Base resting burn bar
+    bars += `<rect x="${barX.toFixed(1)}" y="${y(baseVal).toFixed(1)}" width="${barW.toFixed(1)}" height="${baseH.toFixed(1)}" rx="${r.kcalAct > 0 ? 0 : 2.5}" fill="var(--aurora)" opacity="0.38"/>`;
+
+    // Active exercise burn bar stacked on top (if any)
+    if(r.kcalAct > 0){
+      bars += `<rect x="${barX.toFixed(1)}" y="${y(r.kcalOut).toFixed(1)}" width="${barW.toFixed(1)}" height="${actH.toFixed(1)}" rx="2.5" fill="var(--aurora)"/>`;
+    }
+
+    if(rows.length <= 7){
+      bars += `<text x="${(x+bw/2).toFixed(1)}" y="${(y(r.kcalOut)-4).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--starlight)">${r.kcalOut}</text>`;
+      bars += `<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)} ${["Su","Mo","Tu","We","Th","Fr","Sa"][new Date(r.date+"T12:00").getDay()]}</text>`;
+    } else if(i % 5 === 0){
+      bars += `<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)}</text>`;
+    }
+  });
+
+  const by = y(baseline);
+  const totalBurn = rows.reduce((s,r)=>s+r.kcalOut, 0);
+  const totalAct = rows.reduce((s,r)=>s+r.kcalAct, 0);
+  const avgBurn = Math.round(totalBurn / rows.length);
+
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+    <line x1="${pad}" x2="${W-pad}" y1="${by.toFixed(1)}" y2="${by.toFixed(1)}" stroke="var(--comet)" stroke-dasharray="4 4" stroke-width="1"/>
+    <text x="${W-pad}" y="${(by-4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--comet)">baseline ${baseline.toLocaleString()} kcal</text>
+    ${bars}</svg>`;
+
+  const noteEl = document.getElementById("burnChartNote");
+  if(noteEl){
+    noteEl.textContent = `Total burned: ${totalBurn.toLocaleString()} kcal (avg ${avgBurn.toLocaleString()} kcal/day) · ${totalAct.toLocaleString()} active exercise kcal`;
+  }
 }
 function drawSleepChart(rows){
   const W=480,H=150,pad=6,bw=(W-pad*2)/rows.length;
@@ -827,23 +1793,80 @@ function drawSleepChart(rows){
       const h=r.sleepMin/60;
       bars+=`<rect x="${(x+bw*0.2).toFixed(1)}" y="${y(h).toFixed(1)}" width="${(bw*0.6).toFixed(1)}" height="${(H-18-y(h)).toFixed(1)}" rx="3" fill="var(--lunar)"/>`;
     }
-    if(rows.length<=7) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="#8B93C4">${r.date.slice(8)}</text>`;
-    else if(i%5===0) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="#8B93C4">${r.date.slice(8)}</text>`;
+    if(rows.length<=7) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)}</text>`;
+    else if(i%5===0) bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="10" fill="var(--comet)">${r.date.slice(8)}</text>`;
   });
   const gy=y(DB.settings.sleepGoal);
   document.getElementById("slpChart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
-    <line x1="${pad}" x2="${W-pad}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="#8B93C4" stroke-dasharray="4 4" stroke-width="1"/>
-    <text x="${W-pad}" y="${(gy-4).toFixed(1)}" text-anchor="end" font-size="10" fill="#8B93C4">goal ${DB.settings.sleepGoal}h</text>
+    <line x1="${pad}" x2="${W-pad}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="var(--comet)" stroke-dasharray="4 4" stroke-width="1"/>
+    <text x="${W-pad}" y="${(gy-4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--comet)">goal ${DB.settings.sleepGoal}h</text>
     ${bars}</svg>`;
 }
+
+/* ============ Theme system ============ */
+function applyTheme(themeName, persist = true){
+  const t = themeName === "outdoor" ? "outdoor" : "space";
+  if(t === "outdoor"){
+    document.body.setAttribute("data-theme", "outdoor");
+    document.documentElement.setAttribute("data-theme", "outdoor");
+  } else {
+    document.body.removeAttribute("data-theme");
+    document.documentElement.removeAttribute("data-theme");
+  }
+  const icon = document.getElementById("themeIcon");
+  const btn = document.getElementById("btnTheme");
+  if(icon && btn){
+    if(t === "outdoor"){
+      icon.textContent = "🪐";
+      btn.setAttribute("aria-label", "Switch to Space dark theme");
+      btn.setAttribute("title", "Switch to Space dark theme");
+    } else {
+      icon.textContent = "☀️";
+      btn.setAttribute("aria-label", "Switch to Outdoor high-contrast theme");
+      btn.setAttribute("title", "Switch to Outdoor high-contrast theme");
+    }
+  }
+  document.querySelectorAll("#themeSeg button").forEach(b => {
+    b.classList.toggle("on", b.dataset.theme === t);
+  });
+  const meta = document.getElementById("metaThemeColor");
+  if(meta) meta.setAttribute("content", t === "outdoor" ? "#F4F6FB" : "#0A0D1E");
+  if(persist){
+    DB.settings.theme = t;
+    save();
+  }
+  renderToday();
+  if(document.getElementById("scr-reports") && document.getElementById("scr-reports").classList.contains("active")){
+    renderReports();
+  }
+}
+
+document.getElementById("btnTheme").addEventListener("click", () => {
+  const nextTheme = (DB.settings.theme === "outdoor") ? "space" : "outdoor";
+  applyTheme(nextTheme, true);
+  toast(nextTheme === "outdoor" ? "Outdoor high-contrast mode active ☀️" : "Space dark theme active 🪐");
+});
+
+document.getElementById("themeSeg").addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if(!b) return;
+  document.querySelectorAll("#themeSeg button").forEach(btn => btn.classList.toggle("on", btn === b));
+  applyTheme(b.dataset.theme, true);
+  toast(b.dataset.theme === "outdoor" ? "Outdoor high-contrast mode active ☀️" : "Space dark theme active 🪐");
+});
 
 /* ============ Settings ============ */
 const modal=document.getElementById("settingsModal");
 document.getElementById("btnSettings").addEventListener("click",()=>{
+  const curTheme = DB.settings.theme || "space";
+  document.querySelectorAll("#themeSeg button").forEach(b => {
+    b.classList.toggle("on", b.dataset.theme === curTheme);
+  });
   document.getElementById("setGoal").value=DB.settings.goal;
   document.getElementById("setWeight").value=DB.settings.weight;
   document.getElementById("setBase").value=DB.settings.baseline;
   document.getElementById("setProt").value=DB.settings.proteinGoal;
+  document.getElementById("setWater").value=DB.settings.waterGoal || 2500;
   document.getElementById("setSleep").value=DB.settings.sleepGoal;
   modal.classList.add("open");
 });
@@ -859,8 +1882,13 @@ document.getElementById("saveSettings").addEventListener("click",()=>{
   if(isNaN(base)||base<0||base>5000) return toast("Resting burn: 0–5000 kcal");
   const pgoal=parseInt(document.getElementById("setProt").value,10);
   if(isNaN(pgoal)||pgoal<0||pgoal>400) return toast("Protein goal: 0–400 g");
+  const wgoal=parseInt(document.getElementById("setWater").value,10);
+  if(isNaN(wgoal)||wgoal<500||wgoal>8000) return toast("Water goal: 500–8,000 ml");
   if(!s||s<4) return toast("Sleep goal must be ≥ 4h");
-  DB.settings={goal:g,weight:w,sleepGoal:s,baseline:base,proteinGoal:pgoal}; save();
+  const activeThemeBtn = document.querySelector("#themeSeg button.on");
+  const th = activeThemeBtn ? activeThemeBtn.dataset.theme : (DB.settings.theme || "space");
+  DB.settings={goal:g,weight:w,sleepGoal:s,baseline:base,proteinGoal:pgoal,waterGoal:wgoal,theme:th}; save();
+  applyTheme(th, false);
   modal.classList.remove("open"); toast("Settings saved"); renderToday();
 });
 document.getElementById("exportBtn").addEventListener("click",()=>{
@@ -875,13 +1903,356 @@ document.getElementById("importFile").addEventListener("change",e=>{
   r.onload=()=>{ try{
     const d=JSON.parse(r.result);
     if(!d.settings||!Array.isArray(d.foods)) throw 0;
-    DB={...structuredClone(DEFAULTS), ...d, settings:{...DEFAULTS.settings, ...d.settings}}; save(); toast("Backup restored"); renderToday(); renderSleepList();
+    DB={...structuredClone(DEFAULTS), ...d, settings:{...DEFAULTS.settings, ...d.settings}}; save();
+    applyTheme(DB.settings.theme || "space", false);
+    toast("Backup restored"); renderToday(); renderSleepList();
   }catch{ toast("Invalid backup file"); } };
   r.readAsText(f);
 });
 document.getElementById("wipeBtn").addEventListener("click",()=>{
-  if(confirm("Erase all Orbit data on this device?")){ DB=structuredClone(DEFAULTS); save(); toast("All data erased"); renderToday(); renderSleepList(); }
+  if(confirm("Erase all Orbit data on this device?")){
+    DB=structuredClone(DEFAULTS); save();
+    applyTheme("space", false);
+    toast("All data erased"); renderToday(); renderSleepList();
+  }
 });
+
+/* ============ User Account & Cloud Sync logic ============ */
+const accountModal = document.getElementById("accountModal");
+const btnAccount = document.getElementById("btnAccount");
+const closeAccount = document.getElementById("closeAccount");
+const btnSettingsAccount = document.getElementById("btnSettingsAccount");
+const btnGoogleSignIn = document.getElementById("btnGoogleSignIn");
+const btnSignOut = document.getElementById("btnSignOut");
+const btnManualSync = document.getElementById("btnManualSync");
+
+const btnScreenGoogleSignIn = document.getElementById("btnScreenGoogleSignIn");
+const btnScreenSignOut = document.getElementById("btnScreenSignOut");
+const btnScreenManualSync = document.getElementById("btnScreenManualSync");
+const btnScreenExport = document.getElementById("btnScreenExport");
+const btnScreenImport = document.getElementById("btnScreenImport");
+
+btnScreenGoogleSignIn?.addEventListener("click", () => btnGoogleSignIn?.click());
+btnScreenSignOut?.addEventListener("click", () => btnSignOut?.click());
+btnScreenManualSync?.addEventListener("click", () => btnManualSync?.click());
+btnScreenExport?.addEventListener("click", () => document.getElementById("exportBtn")?.click());
+btnScreenImport?.addEventListener("click", () => document.getElementById("importBtn")?.click());
+
+function openAccountModal() {
+  updateAccountStats();
+  if (accountModal) accountModal.classList.add("open");
+}
+function closeAccountModal() {
+  if (accountModal) accountModal.classList.remove("open");
+}
+
+btnAccount?.addEventListener("click", () => show("account"));
+closeAccount?.addEventListener("click", closeAccountModal);
+btnSettingsAccount?.addEventListener("click", () => {
+  const sModal = document.getElementById("settingsModal");
+  if (sModal) sModal.classList.remove("open");
+  show("account");
+});
+accountModal?.addEventListener("click", (e) => {
+  if (e.target === accountModal) closeAccountModal();
+});
+
+btnGoogleSignIn?.addEventListener("click", async () => {
+  if (!auth) {
+    return toast("Connecting authentication service...");
+  }
+  try {
+    const provider = new GoogleAuthProvider();
+    toast("Opening Google Sign-In...");
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    toast(`Welcome, ${user.displayName || "Explorer"}! 🚀`);
+  } catch (err) {
+    console.error("Sign-in error:", err);
+    if (err?.code === "auth/popup-closed-by-user") {
+      toast("Sign-in popup closed");
+    } else {
+      toast(err.message || "Sign-in failed");
+    }
+  }
+});
+
+btnSignOut?.addEventListener("click", async () => {
+  if (!auth) return;
+  try {
+    await signOut(auth);
+    currentUser = null;
+    updateUserAccountUI(null);
+    toast("Signed out — switched to Local Guest mode 👋");
+  } catch (err) {
+    toast(err.message || "Failed to sign out");
+  }
+});
+
+btnManualSync?.addEventListener("click", async () => {
+  if (!currentUser) return;
+  toast("Syncing with cloud...");
+  await syncUserDataToCloud(currentUser);
+  await syncUserDataFromCloud(currentUser);
+});
+
+async function syncUserDataFromCloud(user) {
+  if (!db || !user) return;
+  const path = `users/${user.uid}/data/userData`;
+  try {
+    const docRef = doc(db, "users", user.uid, "data", "userData");
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const cloudData = snap.data();
+      mergeCloudData(cloudData);
+      toast("Health logs synced from cloud ☁️");
+    } else {
+      await syncUserDataToCloud(user);
+      toast("Account connected & cloud sync active ☁️");
+    }
+
+    const userProfileRef = doc(db, "users", user.uid);
+    await setDoc(userProfileRef, {
+      uid: user.uid,
+      email: user.email || "",
+      displayName: user.displayName || "Orbit Explorer",
+      photoURL: user.photoURL || "",
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, path);
+  }
+}
+
+let syncDebounceTimer = null;
+function syncUserDataToCloud(user = currentUser) {
+  if (!db || !user) return;
+  clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(async () => {
+    if (isCloudSyncing) return;
+    isCloudSyncing = true;
+    updateSyncIndicator("syncing");
+    const path = `users/${user.uid}/data/userData`;
+    try {
+      const docRef = doc(db, "users", user.uid, "data", "userData");
+      await setDoc(docRef, {
+        userId: user.uid,
+        settings: DB.settings,
+        foods: DB.foods,
+        activities: DB.activities,
+        sleeps: DB.sleeps,
+        weights: DB.weights,
+        waters: DB.waters || [],
+        myFoods: DB.myFoods || [],
+        updatedAt: new Date().toISOString()
+      });
+      updateSyncIndicator("synced");
+    } catch (error) {
+      updateSyncIndicator("error");
+      handleFirestoreError(error, OperationType.WRITE, path);
+    } finally {
+      isCloudSyncing = false;
+    }
+  }, 400);
+}
+
+function mergeCloudData(cloudData){
+  if(!cloudData) return;
+  if(cloudData.settings) {
+    DB.settings = { ...DB.settings, ...cloudData.settings };
+  }
+  const mergeById = (localArr, cloudArr) => {
+    const map = new Map();
+    (localArr || []).forEach(item => { if(item && item.id) map.set(item.id, item); });
+    (cloudArr || []).forEach(item => { if(item && item.id) map.set(item.id, item); });
+    return Array.from(map.values());
+  };
+
+  DB.foods = mergeById(DB.foods, cloudData.foods);
+  DB.activities = mergeById(DB.activities, cloudData.activities);
+  DB.sleeps = mergeById(DB.sleeps, cloudData.sleeps);
+  DB.weights = mergeById(DB.weights, cloudData.weights);
+  DB.waters = mergeById(DB.waters, cloudData.waters);
+
+  const foodMap = new Map();
+  (DB.myFoods || []).forEach(f => { if(f && f.name) foodMap.set(f.name.toLowerCase(), f); });
+  (cloudData.myFoods || []).forEach(f => { if(f && f.name) foodMap.set(f.name.toLowerCase(), f); });
+  DB.myFoods = Array.from(foodMap.values());
+
+  localStorage.setItem(KEY, JSON.stringify(DB));
+  renderToday();
+  renderSleepList();
+  renderWaterList();
+  renderWtList();
+  updateAccountStats();
+}
+
+function updateUserAccountUI(user) {
+  const avatarSlot = document.getElementById("userAvatarSlot");
+  const cloudDot = document.getElementById("userCloudDot");
+  const signedOutView = document.getElementById("accountSignedOutView");
+  const signedInView = document.getElementById("accountSignedInView");
+
+  const screenSignedOutView = document.getElementById("screenAccountSignedOut");
+  const screenSignedInView = document.getElementById("screenAccountSignedIn");
+  const accountBadgeStatus = document.getElementById("accountBadgeStatus");
+
+  const setAccountAvatar = document.getElementById("setAccountAvatar");
+  const setAccountName = document.getElementById("setAccountName");
+  const setAccountStatus = document.getElementById("setAccountStatus");
+
+  const accAvatar = document.getElementById("accountUserAvatar");
+  const accName = document.getElementById("accountUserName");
+  const accEmail = document.getElementById("accountUserEmail");
+
+  const screenAvatar = document.getElementById("screenUserAvatar");
+  const screenName = document.getElementById("screenUserName");
+  const screenEmail = document.getElementById("screenUserEmail");
+
+  if (user) {
+    if (avatarSlot) {
+      if (user.photoURL) {
+        avatarSlot.innerHTML = `<img src="${user.photoURL}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex:none"><span id="userCloudDot" style="position:absolute;bottom:1px;right:1px;width:7px;height:7px;border-radius:50%;background:var(--aurora);border:1.5px solid var(--nebula)"></span>`;
+      } else {
+        const initial = (user.displayName || user.email || "U")[0].toUpperCase();
+        avatarSlot.innerHTML = `<span style="display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--lunar);color:#fff;font-size:12px;font-weight:700">${initial}</span><span id="userCloudDot" style="position:absolute;bottom:1px;right:1px;width:7px;height:7px;border-radius:50%;background:var(--aurora);border:1.5px solid var(--nebula)"></span>`;
+      }
+    }
+
+    if (signedOutView) signedOutView.style.display = "none";
+    if (signedInView) signedInView.style.display = "block";
+    if (screenSignedOutView) screenSignedOutView.style.display = "none";
+    if (screenSignedInView) screenSignedInView.style.display = "block";
+
+    if (accountBadgeStatus) {
+      accountBadgeStatus.textContent = "Synced (Cloud)";
+      accountBadgeStatus.style.color = "var(--aurora)";
+      accountBadgeStatus.style.borderColor = "var(--aurora)";
+    }
+
+    if (accAvatar) {
+      if (user.photoURL) {
+        accAvatar.innerHTML = `<img src="${user.photoURL}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+      } else {
+        const initial = (user.displayName || user.email || "U")[0].toUpperCase();
+        accAvatar.textContent = initial;
+      }
+    }
+    if (accName) accName.textContent = user.displayName || "Orbit Explorer";
+    if (accEmail) accEmail.textContent = user.email || "";
+
+    if (screenAvatar) {
+      if (user.photoURL) {
+        screenAvatar.innerHTML = `<img src="${user.photoURL}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+      } else {
+        const initial = (user.displayName || user.email || "U")[0].toUpperCase();
+        screenAvatar.textContent = initial;
+      }
+    }
+    if (screenName) screenName.textContent = user.displayName || "Orbit Explorer";
+    if (screenEmail) screenEmail.textContent = user.email || "";
+
+    if (setAccountAvatar) {
+      if (user.photoURL) {
+        setAccountAvatar.innerHTML = `<img src="${user.photoURL}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+      } else {
+        const initial = (user.displayName || user.email || "U")[0].toUpperCase();
+        setAccountAvatar.textContent = initial;
+      }
+    }
+    if (setAccountName) setAccountName.textContent = user.displayName || "Google Account";
+    if (setAccountStatus) setAccountStatus.textContent = "Synced to Cloud ☁️";
+
+    updateAccountStats();
+  } else {
+    if (avatarSlot) avatarSlot.innerHTML = `<span>👤</span>`;
+    if (cloudDot) cloudDot.style.display = "none";
+
+    if (signedOutView) signedOutView.style.display = "block";
+    if (signedInView) signedInView.style.display = "none";
+    if (screenSignedOutView) screenSignedOutView.style.display = "block";
+    if (screenSignedInView) screenSignedInView.style.display = "none";
+
+    if (accountBadgeStatus) {
+      accountBadgeStatus.textContent = "Guest Mode";
+      accountBadgeStatus.style.color = "var(--comet)";
+      accountBadgeStatus.style.borderColor = "var(--line)";
+    }
+
+    if (setAccountAvatar) setAccountAvatar.textContent = "👤";
+    if (setAccountName) setAccountName.textContent = "Guest Account";
+    if (setAccountStatus) setAccountStatus.textContent = "Local device only";
+    updateAccountStats();
+  }
+}
+
+function updateAccountStats() {
+  const fCount = (DB.foods || []).length;
+  const aCount = (DB.activities || []).length;
+  const totalCount = fCount + aCount + (DB.sleeps || []).length + (DB.weights || []).length + (DB.waters || []).length;
+
+  const fEl = document.getElementById("accStatFoods");
+  const aEl = document.getElementById("accStatActs");
+  const dEl = document.getElementById("accStatDays");
+  if(fEl) fEl.textContent = fCount;
+  if(aEl) aEl.textContent = aCount;
+  if(dEl) dEl.textContent = totalCount;
+
+  const sfEl = document.getElementById("screenStatFoods");
+  const saEl = document.getElementById("screenStatActs");
+  const sdEl = document.getElementById("screenStatDays");
+  if(sfEl) sfEl.textContent = fCount;
+  if(saEl) saEl.textContent = aCount;
+  if(sdEl) sdEl.textContent = totalCount;
+}
+
+function updateSyncIndicator(status) {
+  const statusEl = document.getElementById("accountSyncStatusText");
+  const screenStatusEl = document.getElementById("screenSyncStatusText");
+  let txt = "Cloud Sync Active", col = "var(--aurora)";
+  if(status === "syncing") {
+    txt = "Syncing with Cloud...";
+    col = "var(--solar)";
+  } else if(status === "synced") {
+    txt = "Cloud Sync Active";
+    col = "var(--aurora)";
+  } else if(status === "error") {
+    txt = "Sync Notice";
+    col = "var(--danger)";
+  }
+  if(statusEl) { statusEl.textContent = txt; statusEl.style.color = col; }
+  if(screenStatusEl) { screenStatusEl.textContent = txt; screenStatusEl.style.color = col; }
+}
+
+async function initFirebase() {
+  try {
+    const res = await fetch("/firebase-applet-config.json");
+    if (!res.ok) throw new Error("Could not load firebase-applet-config.json");
+    const firebaseConfig = await res.json();
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+    // Connection validation as required by skill
+    try {
+      await getDocFromServer(doc(db, "test", "connection"));
+    } catch (connErr) {
+      if (connErr instanceof Error && connErr.message.includes("the client is offline")) {
+        console.warn("Firebase client offline warning:", connErr);
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      updateUserAccountUI(user);
+      if (user) {
+        await syncUserDataFromCloud(user);
+      }
+    });
+  } catch (err) {
+    console.warn("Firebase init notice:", err);
+  }
+}
 
 /* ============ voice logging ============ */
 const NUM_WORDS={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,a:1,an:1,half:0.5,couple:2};
@@ -984,17 +2355,375 @@ document.getElementById("micAddAll").addEventListener("click", ()=>{
   });
 })();
 
+/* ============ Gemini Health AI Companion ============ */
+const geminiModal = document.getElementById("geminiModal");
+const btnGemini = document.getElementById("btnGemini");
+const geminiBanner = document.getElementById("geminiBanner");
+const closeGemini = document.getElementById("closeGemini");
+
+function getHealthContextSummary(){
+  const t = todayStr();
+  const totals = dayTotals(t);
+  const goal = DB.settings.goal;
+  const ptarget = proteinTarget();
+  const wgoal = DB.settings.waterGoal || 2500;
+  const baseline = DB.settings.baseline;
+  const weight = DB.settings.weight;
+  const foods = DB.foods.filter(f=>f.date===t).map(f=>`${f.name} (${f.cal} kcal${f.prot?`, ${f.prot}g prot`:""})`).join(", ") || "None logged yet";
+  const acts = DB.activities.filter(a=>a.date===t).map(a=>`${a.name} (${a.minutes} min, -${a.cal} kcal)`).join(", ") || "None logged yet";
+  const sleep = totals.sleepMin!=null ? fmtH(totals.sleepMin) : "Not logged yet";
+  const bal = totals.kcalIn - totals.kcalOut;
+  const balTxt = bal > 0 ? `+${bal} kcal (surplus)` : `${bal} kcal (deficit)`;
+  const wtRate = calculateWeightRateOfChange(30);
+  const proj30Kg = (wtRate.currentKg + wtRate.ratePerDay * 30).toFixed(1);
+  const wtProjTxt = wtRate.type !== "none" ? `${wtRate.ratePerWeek > 0 ? "+" : ""}${wtRate.ratePerWeek.toFixed(2)} kg/week, projected ${proj30Kg} kg in 30 days` : "Needs more logs";
+
+  return `Current Day: ${niceDate(t)}
+- Calories Eaten: ${totals.kcalIn} kcal (Target Goal: ${goal} kcal)
+- Calories Burned: ${totals.kcalOut} kcal (${totals.kcalAct} from activities + ${baseline} kcal resting burn)
+- Energy Balance: ${balTxt}
+- Protein Consumed: ${totals.protein} g (Target: ${ptarget} g)
+- Water Intake: ${totals.water || 0} ml (Hydration Goal: ${wgoal} ml)
+- Body Weight: ${weight} kg (30-day projection: ${wtProjTxt})
+- Last Sleep Duration: ${sleep}
+- Today's Foods Logged: ${foods}
+- Today's Activities Logged: ${acts}`;
+}
+
+function updateGeminiContextStrip(){
+  const t = todayStr();
+  const totals = dayTotals(t);
+  const ptarget = proteinTarget();
+  const wgoal = DB.settings.waterGoal || 2500;
+  const el = document.getElementById("geminiContextText");
+  if(el){
+    el.textContent = `Today: ${totals.kcalIn}/${DB.settings.goal} kcal · ${totals.water||0}/${wgoal}ml water · ${totals.protein}/${ptarget}g prot`;
+  }
+}
+
+function openGeminiModal(){
+  updateGeminiContextStrip();
+  if(geminiModal) geminiModal.classList.add("open");
+}
+
+function closeGeminiModal(){
+  stopLiveVoiceSession();
+  if(geminiModal) geminiModal.classList.remove("open");
+}
+
+btnGemini?.addEventListener("click", openGeminiModal);
+geminiBanner?.addEventListener("click", openGeminiModal);
+closeGemini?.addEventListener("click", closeGeminiModal);
+geminiModal?.addEventListener("click", e=>{ if(e.target===geminiModal) closeGeminiModal(); });
+
+/* Mode Segment Control: Voice vs Chat */
+document.getElementById("geminiModeSeg")?.addEventListener("click", e=>{
+  const b = e.target.closest("button");
+  if(!b) return;
+  document.querySelectorAll("#geminiModeSeg button").forEach(x=>x.classList.toggle("on", x===b));
+  const mode = b.dataset.mode;
+  const vView = document.getElementById("geminiVoiceView");
+  const cView = document.getElementById("geminiChatView");
+  if(vView) vView.style.display = mode==="voice" ? "" : "none";
+  if(cView) cView.style.display = mode==="chat" ? "" : "none";
+});
+
+/* ---- Live Voice (Live API gemini-3.8-live) ---- */
+let liveWs = null;
+let inputAudioCtx = null;
+let outputAudioCtx = null;
+let micStream = null;
+let micProcessor = null;
+let isLiveActive = false;
+let nextPlayTime = 0;
+let liveAudioSources = [];
+
+const voiceOrb = document.getElementById("voiceOrb");
+const voiceStatusText = document.getElementById("voiceStatusText");
+const btnStartVoice = document.getElementById("btnStartVoice");
+const btnEndVoice = document.getElementById("btnEndVoice");
+const liveLog = document.getElementById("liveConversationLog");
+const transcriptPlaceholder = document.getElementById("transcriptPlaceholder");
+
+function appendLiveTranscript(speaker, text){
+  if(transcriptPlaceholder) transcriptPlaceholder.style.display = "none";
+  if(!liveLog) return;
+  const div = document.createElement("div");
+  div.className = `transcript-bubble ${speaker}`;
+  div.innerHTML = `<strong>${speaker==="user"?"You":"Gemini"}:</strong> ${esc(text)}`;
+  liveLog.appendChild(div);
+  const box = document.getElementById("liveTranscriptBox");
+  if(box) box.scrollTop = box.scrollHeight;
+}
+
+function stopLiveAudioPlayback(){
+  liveAudioSources.forEach(s => {
+    try { s.stop(); } catch(_) {}
+  });
+  liveAudioSources = [];
+  nextPlayTime = 0;
+  if(voiceOrb) voiceOrb.classList.remove("speaking");
+}
+
+function playLiveAudioChunk(base64Audio){
+  if(!outputAudioCtx) return;
+  try{
+    const binary = atob(base64Audio);
+    const bytes = new Uint8Array(binary.length);
+    for(let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const int16 = new Int16Array(bytes.buffer);
+    const float32 = new Float32Array(int16.length);
+    for(let i=0; i<int16.length; i++) float32[i] = int16[i] / 32768.0;
+
+    const buffer = outputAudioCtx.createBuffer(1, float32.length, 24000);
+    buffer.copyToChannel(float32, 0);
+
+    const source = outputAudioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(outputAudioCtx.destination);
+
+    const now = outputAudioCtx.currentTime;
+    if(nextPlayTime < now){
+      nextPlayTime = now;
+    }
+    source.start(nextPlayTime);
+    nextPlayTime += buffer.duration;
+
+    if(voiceOrb){
+      voiceOrb.classList.add("speaking");
+      voiceOrb.classList.remove("listening");
+    }
+    if(voiceStatusText) voiceStatusText.textContent = "Gemini is speaking...";
+
+    liveAudioSources.push(source);
+    source.onended = () => {
+      liveAudioSources = liveAudioSources.filter(s => s !== source);
+      if(liveAudioSources.length === 0){
+        if(voiceOrb) voiceOrb.classList.remove("speaking");
+        if(isLiveActive){
+          if(voiceOrb) voiceOrb.classList.add("listening");
+          if(voiceStatusText) voiceStatusText.textContent = "Listening to you... (speak freely)";
+        }
+      }
+    };
+  }catch(err){
+    console.error("Audio playback error:", err);
+  }
+}
+
+async function startLiveVoiceSession(){
+  if(isLiveActive) return;
+  if(voiceStatusText) voiceStatusText.textContent = "Requesting microphone permission...";
+
+  try{
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, sampleRate: 16000 } });
+  }catch(err){
+    toast("Microphone access needed for voice");
+    if(voiceStatusText) voiceStatusText.textContent = "Microphone access denied. You can still use the Health Chat tab!";
+    return;
+  }
+
+  if(voiceStatusText) voiceStatusText.textContent = "Connecting to Gemini Live API (gemini-3.8-live)...";
+  const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  liveWs = new WebSocket(`${protocol}//${location.host}/api/live`);
+
+  liveWs.onopen = () => {
+    isLiveActive = true;
+    if(btnStartVoice) btnStartVoice.style.display = "none";
+    if(btnEndVoice) btnEndVoice.style.display = "";
+    if(voiceOrb) voiceOrb.classList.add("listening");
+    if(voiceStatusText) voiceStatusText.textContent = "Connected! Setting up health context...";
+
+    // Send context handshake
+    liveWs.send(JSON.stringify({
+      type: "init",
+      healthContext: getHealthContextSummary()
+    }));
+
+    // Setup AudioContexts
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    inputAudioCtx = new AudioContextClass({ sampleRate: 16000 });
+    outputAudioCtx = new AudioContextClass({ sampleRate: 24000 });
+
+    if(inputAudioCtx.state === "suspended") inputAudioCtx.resume();
+    if(outputAudioCtx.state === "suspended") outputAudioCtx.resume();
+
+    const source = inputAudioCtx.createMediaStreamSource(micStream);
+    micProcessor = inputAudioCtx.createScriptProcessor(4096, 1, 1);
+    source.connect(micProcessor);
+    micProcessor.connect(inputAudioCtx.destination);
+
+    micProcessor.onaudioprocess = (e) => {
+      if(!isLiveActive || !liveWs || liveWs.readyState !== WebSocket.OPEN) return;
+      const float32 = e.inputBuffer.getChannelData(0);
+      const int16 = new Int16Array(float32.length);
+      for(let i=0; i<float32.length; i++){
+        const s = Math.max(-1, Math.min(1, float32[i]));
+        int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      }
+      let binary = "";
+      const bytes = new Uint8Array(int16.buffer);
+      for(let i=0; i<bytes.byteLength; i++){
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+      liveWs.send(JSON.stringify({ audio: base64 }));
+    };
+  };
+
+  liveWs.onmessage = (event) => {
+    try{
+      const msg = JSON.parse(event.data);
+      if(msg.type === "ready"){
+        if(voiceStatusText) voiceStatusText.textContent = "Gemini Live ready! Ask anything about your day.";
+        if(voiceOrb) voiceOrb.classList.add("listening");
+      } else if(msg.type === "audio" && msg.audio){
+        playLiveAudioChunk(msg.audio);
+      } else if(msg.type === "text" && msg.text){
+        appendLiveTranscript("model", msg.text);
+      } else if(msg.type === "userTranscript" && msg.text){
+        appendLiveTranscript("user", msg.text);
+      } else if(msg.type === "interrupted"){
+        stopLiveAudioPlayback();
+        if(voiceOrb) voiceOrb.classList.add("listening");
+        if(voiceStatusText) voiceStatusText.textContent = "Listening to you...";
+      } else if(msg.type === "turnComplete"){
+        if(liveAudioSources.length === 0){
+          if(voiceOrb) voiceOrb.classList.remove("speaking");
+          if(voiceOrb) voiceOrb.classList.add("listening");
+          if(voiceStatusText) voiceStatusText.textContent = "Listening to you...";
+        }
+      } else if(msg.type === "error"){
+        if(voiceStatusText) voiceStatusText.textContent = `Gemini: ${msg.message}`;
+        toast("Voice session error");
+      }
+    }catch(e){
+      console.error("Live message error:", e);
+    }
+  };
+
+  liveWs.onerror = () => {
+    if(voiceStatusText) voiceStatusText.textContent = "Connection error to Gemini Live";
+    stopLiveVoiceSession();
+  };
+
+  liveWs.onclose = () => {
+    if(isLiveActive) stopLiveVoiceSession();
+  };
+}
+
+function stopLiveVoiceSession(){
+  isLiveActive = false;
+  if(micProcessor){
+    try{ micProcessor.disconnect(); } catch(_){}
+    micProcessor = null;
+  }
+  if(micStream){
+    micStream.getTracks().forEach(t=>t.stop());
+    micStream = null;
+  }
+  if(inputAudioCtx){
+    try{ inputAudioCtx.close(); } catch(_){}
+    inputAudioCtx = null;
+  }
+  stopLiveAudioPlayback();
+  if(outputAudioCtx){
+    try{ outputAudioCtx.close(); } catch(_){}
+    outputAudioCtx = null;
+  }
+  if(liveWs){
+    try{ liveWs.close(); } catch(_){}
+    liveWs = null;
+  }
+  if(btnStartVoice) btnStartVoice.style.display = "";
+  if(btnEndVoice) btnEndVoice.style.display = "none";
+  if(voiceOrb) voiceOrb.className = "voice-orb";
+  if(voiceStatusText) voiceStatusText.textContent = "Call ended. Tap Start Voice Call to talk again.";
+}
+
+btnStartVoice?.addEventListener("click", startLiveVoiceSession);
+btnEndVoice?.addEventListener("click", stopLiveVoiceSession);
+
+/* ---- Text Health Chat (/api/gemini/health-chat) ---- */
+let chatHistory = [];
+const chatLog = document.getElementById("geminiChatLog");
+const chatInput = document.getElementById("geminiInput");
+const sendBtn = document.getElementById("geminiSendBtn");
+
+function appendChatMessage(role, text){
+  if(!chatLog) return;
+  const div = document.createElement("div");
+  div.className = `chat-msg ${role}`;
+  div.innerHTML = esc(text).replace(/\n/g, "<br>");
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return div;
+}
+
+async function sendHealthChatMessage(text){
+  const message = (text || chatInput?.value || "").trim();
+  if(!message) return;
+  if(chatInput) chatInput.value = "";
+
+  appendChatMessage("user", message);
+  chatHistory.push({ role: "user", text: message });
+
+  const loadingBubble = appendChatMessage("ai loading", "Gemini is reviewing your health data...");
+  if(sendBtn) sendBtn.disabled = true;
+
+  try{
+    const res = await fetch("/api/gemini/health-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message,
+        healthContext: getHealthContextSummary(),
+        history: chatHistory.slice(-6)
+      })
+    });
+    const data = await res.json();
+    loadingBubble?.remove();
+    if(data.error) throw new Error(data.error);
+
+    const reply = data.text || "I'm here to support your health journey.";
+    appendChatMessage("ai", reply);
+    chatHistory.push({ role: "assistant", text: reply });
+  }catch(err){
+    loadingBubble?.remove();
+    appendChatMessage("ai", `Error: ${err.message || "Failed to reach Gemini"}. Please try again.`);
+  }finally{
+    if(sendBtn) sendBtn.disabled = false;
+    if(chatInput) chatInput.focus();
+  }
+}
+
+sendBtn?.addEventListener("click", ()=>sendHealthChatMessage());
+chatInput?.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){
+    e.preventDefault();
+    sendHealthChatMessage();
+  }
+});
+
+document.querySelectorAll(".gemini-prompt-chip").forEach(chip => {
+  chip.addEventListener("click", ()=>{
+    sendHealthChatMessage(chip.dataset.q);
+  });
+});
+
 /* ============ misc ============ */
 let toastTimer;
 function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2200); }
 /* default dates */
-["fDate","aDate","sDate","wDate"].forEach(id=>document.getElementById(id).value=todayStr());
+["fDate","aDate","sDate","wDate","wtrDate"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayStr(); });
+applyTheme(DB.settings.theme || "space", false);
 refreshMet();
-renderToday(); renderSleepList();
+renderToday(); renderSleepList(); renderWaterList();
+initFirebase();
 /* service worker */
 if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 /* expose for tests */
-window.__orbit = { sleepMinutes, metCalories, rangeReport, dayTotals, lastNDates, ymd, estimateCalories, parseFoodEntry, searchMyFoods, rememberFood, proteinTarget, parseSpeech, showMicReview };
+window.__orbit = { sleepMinutes, metCalories, rangeReport, dayTotals, lastNDates, ymd, estimateCalories, parseFoodEntry, searchMyFoods, rememberFood, proteinTarget, parseSpeech, showMicReview, applyTheme, openGeminiModal, startLiveVoiceSession, stopLiveVoiceSession, logWater, calculateWeightRateOfChange, drawWeightProjection, drawBurnChart, openAccountModal, closeAccountModal, syncUserDataToCloud, syncUserDataFromCloud, renderAccountScreen, show };
 </script>
 </body>
 </html>

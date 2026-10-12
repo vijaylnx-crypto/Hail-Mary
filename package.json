@@ -1,0 +1,17 @@
+{
+  "name": "orbit-health-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "@google/genai": "^2.28.0",
+    "express": "^4.19.2",
+    "firebase": "^13.0.0",
+    "ws": "^8.22.0"
+  }
+}

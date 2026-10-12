@@ -1,0 +1,8 @@
+{
+  "name": "Orbit — Health Tracker",
+  "description": "Space-themed health, fitness, calorie, and biometric tracker.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

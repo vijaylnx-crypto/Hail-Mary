@@ -1,6 +1,6 @@
 {
-  "name": "Hail Mary",
-  "short_name": "Hail Mary",
+  "name": "ORBIT",
+  "short_name": "ORBIT",
   "description": "Space exploration themed fitness, calorie, and biometric dashboard.",
   "start_url": "./index.html",
   "display": "standalone",
